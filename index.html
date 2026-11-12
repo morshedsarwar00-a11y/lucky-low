@@ -2401,6 +2401,7 @@ var ROLE_LABEL={super_admin:"Super Admin",admin:"Admin",draw_controller:"Draw Co
 function rolesBelow(role){var i=ROLE_ORDER.indexOf(role);if(i===-1)return ["user"];return ROLE_ORDER.slice(i+1);}
 function unwrapList(d){if(!d)return[];if(Array.isArray(d))return d;return d.items||d.users||d.data||d.results||d.rows||[];}
 function unwrapObj(d){if(!d)return null;return d.user||d.data||d.draw||d.settings||d;}
+function normUser(u){ if(u&&u.balance_coins!=null)u.balance=u.balance_coins; return u; }
 
 /* ---------- Auth UI ---------- */
 function showAuth(){
@@ -2444,8 +2445,8 @@ async function handleLogin(ev){
     var at=data&&(data.accessToken||data.access_token||(data.tokens&&data.tokens.accessToken));
     var rt=data&&(data.refreshToken||data.refresh_token||(data.tokens&&data.tokens.refreshToken));
     if(at)setTokens(at,rt||"");
-    currentUser=user;
-    if(!currentUser){ var me=await api("/api/auth/me"); currentUser=unwrapObj(me)||me; }
+    currentUser=normUser(user);
+    if(!currentUser){ var me=await api("/api/auth/me"); currentUser=normUser(unwrapObj(me)||me); }
     await afterLogin();
   }catch(e){ setAuthError(errMsg(e)); }
 }
@@ -2475,7 +2476,7 @@ async function afterLogin(){
   startPolling();
 }
 async function refreshMe(){
-  try{ var me=await api("/api/auth/me"); var u=unwrapObj(me); if(u&&u.id) currentUser=u; if(me&&me.permissions)myPermissions=me.permissions; if(currentUser&&currentUser.permissions)myPermissions=currentUser.permissions; }catch(e){}
+  try{ var me=await api("/api/auth/me"); var u=unwrapObj(me); if(u&&u.id) currentUser=normUser(u); if(me&&me.permissions)myPermissions=me.permissions; if(currentUser&&currentUser.permissions)myPermissions=currentUser.permissions; }catch(e){}
   renderMoney();
 }
 async function loadSettings(){
@@ -2628,7 +2629,7 @@ async function loadUsers(){
     // populate create user + staff selects
     var cu=$("cuType"); if(cu){cu.innerHTML=creatableRoles.map(function(r){return '<option value="'+r+'">'+esc(ROLE_LABEL[r]||r)+"</option>";}).join("");}
     var cs=$("csRoles"); if(cs){cs.innerHTML=creatableRoles.map(function(r,i){return '<button type="button" class="opt-btn'+(i===0?" sel":"")+'" data-role="'+r+'">'+esc(ROLE_LABEL[r]||r)+"</button>";}).join(""); Array.prototype.forEach.call(cs.children,function(b){b.addEventListener("click",function(){Array.prototype.forEach.call(cs.children,function(x){x.classList.remove("sel");});b.classList.add("sel");});});}
-    if($("usersTable"))$("usersTable").innerHTML=allUsers.length?allUsers.map(function(u){var nm=u.fullName||u.name||u.username||"—";var st=u.status||"active";var delBtn=currentUser&&currentUser.role==="super_admin"?'<button type="button" class="mini-btn" data-deluser="'+esc(u.id)+'">DELETE</button>':"";var statusBtn='<button type="button" class="mini-btn" data-statususer="'+esc(u.id)+'" data-cur="'+esc(st)+'">'+(st==="active"?"SUSPEND":"ACTIVATE")+"</button>";return "<tr><td>"+esc(nm)+"</td><td>"+esc(u.email||u.username||u.id||"")+"</td><td>"+esc(ROLE_LABEL[u.role]||u.role||"")+'</td><td class="amt bn">'+tk(u.balance||0)+'</td><td><span class="st '+(st==="active"?"st-won":"st-lost")+'">'+esc(String(st).toUpperCase())+'</span></td><td>'+statusBtn+" "+delBtn+"</td></tr>";}).join(""):'<tr><td colspan="6" style="text-align:center;color:#8a6d3b">No users yet.</td></tr>';
+    if($("usersTable"))$("usersTable").innerHTML=allUsers.length?allUsers.map(function(u){u=normUser(u);var nm=u.fullName||u.name||u.username||"—";var st=u.status||"active";var delBtn=currentUser&&currentUser.role==="super_admin"?'<button type="button" class="mini-btn" data-deluser="'+esc(u.id)+'">DELETE</button>':"";var statusBtn='<button type="button" class="mini-btn" data-statususer="'+esc(u.id)+'" data-cur="'+esc(st)+'">'+(st==="active"?"SUSPEND":"ACTIVATE")+"</button>";return "<tr><td>"+esc(nm)+"</td><td>"+esc(u.email||u.username||u.id||"")+"</td><td>"+esc(ROLE_LABEL[u.role]||u.role||"")+'</td><td class="amt bn">'+tk((u.balance_coins!=null?u.balance_coins:u.balance)||0)+'</td><td><span class="st '+(st==="active"?"st-won":"st-lost")+'">'+esc(String(st).toUpperCase())+'</span></td><td>'+statusBtn+" "+delBtn+"</td></tr>";}).join(""):'<tr><td colspan="6" style="text-align:center;color:#8a6d3b">No users yet.</td></tr>';
     Array.prototype.forEach.call(document.querySelectorAll("[data-deluser]"),function(b){b.addEventListener("click",async function(){try{await api("/api/users/"+b.getAttribute("data-deluser"),{method:"DELETE"});toast("User deleted");loadUsers();}catch(e){toast(errMsg(e));}});});
     Array.prototype.forEach.call(document.querySelectorAll("[data-statususer]"),function(b){b.addEventListener("click",async function(){var curSt=b.getAttribute("data-cur");var ns=curSt==="active"?"suspended":"active";try{await api("/api/users/"+b.getAttribute("data-statususer")+"/status",{method:"PATCH",body:{status:ns}});toast("Status updated");loadUsers();}catch(e){toast(errMsg(e));}});});
     // staff table = users with staff roles
@@ -2750,7 +2751,7 @@ async function loadRisk(){
 }
 
 /* ---------- Render helpers ---------- */
-function renderMoney(){ var bal=currentUser?(currentUser.balance||0):0; if($("balanceVal"))$("balanceVal").textContent=fmt(bal); if($("currSymbol"))$("currSymbol").textContent=cur().symbol; if($("agentCredit"))$("agentCredit").textContent=tk(bal); }
+function renderMoney(){ var bal=currentUser?((currentUser.balance_coins!=null?currentUser.balance_coins:currentUser.balance)||0):0; if($("balanceVal"))$("balanceVal").textContent=fmt(bal); if($("currSymbol"))$("currSymbol").textContent=cur().symbol; if($("agentCredit"))$("agentCredit").textContent=tk(bal); }
 function renderCurrencyUI(){ var c=cur(); if($("currSymbol"))$("currSymbol").textContent=c.symbol; var coin=$("coinSymText"); if(coin){coin.textContent=c.coin;coin.setAttribute("font-size",c.coin.length>1?"13":"24");coin.setAttribute("y",c.coin.length>1?"37":"40");} Array.prototype.forEach.call(document.querySelectorAll(".js-curr-sym"),function(el){el.textContent=c.symbol;}); Array.prototype.forEach.call(document.querySelectorAll(".js-curr-code"),function(el){el.textContent=c.code;}); Array.prototype.forEach.call(document.querySelectorAll(".chip[data-val]"),function(ch){ch.innerHTML='<span class="bn">'+tk(+ch.getAttribute("data-val"))+"</span>";}); Array.prototype.forEach.call(document.querySelectorAll("[data-curr]"),function(b){b.classList.toggle("sel",b.getAttribute("data-curr")===currency);}); var note=$("currNote"); if(note)note.textContent="Now playing in: "+c.name+" ("+c.code+"). Display only — amounts are unchanged."; }
 function setCurrency(code){ if(!CURR[code])return; currency=code; try{localStorage.setItem("ll_currency",code);}catch(e){} renderAll(); toast("Display currency: "+cur().name); }
 function renderPotential(){ var amt=parseAmt($("singleAmt")?$("singleAmt").value:"0"); if($("potWin"))$("potWin").textContent=tk(Math.round(amt*multSingle()*10)/10)+" ("+multSingle()+"x)"; var pw=document.querySelector("#game-single .potential .gold"); }
@@ -2919,7 +2920,7 @@ document.addEventListener("DOMContentLoaded",async function(){
   if($("tripleAmt")&&!$("tripleAmt").value)$("tripleAmt").value=fmt(50);
   renderAll();
   if(getAccess()){
-    try{ var me=await api("/api/auth/me"); currentUser=unwrapObj(me)||me; if(!currentUser||!currentUser.role)throw new Error("no user"); await afterLogin(); }
+    try{ var me=await api("/api/auth/me"); currentUser=normUser(unwrapObj(me)||me); if(!currentUser||!currentUser.role)throw new Error("no user"); await afterLogin(); }
     catch(e){ showAuth(); }
   } else { showAuth(); }
 });
