@@ -1767,6 +1767,7 @@
         <button type="button" data-go="admin">Admin Panel</button>
         <button type="button" data-go="extras">My Bets &amp; Winners</button>
         <button type="button" data-go="how">How to Play</button>
+        <button type="button" id="menuSaLogin" data-go="sa-login">Super Admin Login</button>
         <button type="button" id="logoutBtn">Logout</button>
       </nav>
     </header>
@@ -1830,6 +1831,7 @@
           <button class="btn-green wide-btn" id="registerBtn" type="submit">CREATE ACCOUNT — WAITING FOR APPROVAL</button>
           <p class="empty" style="margin-top:10px">After registering, please wait for approval. You cannot sign in until an admin approves your account.</p>
         </form>
+        <button class="btn-ghost wide-btn" id="saLoginLink" type="button" style="margin-top:10px">Super Admin? Sign in as Super Admin →</button>
         <button class="btn-ghost wide-btn" id="guestBackBtn" type="button" style="margin-top:12px">← Back to games — no sign-in needed</button>
       </div>
     </section>
@@ -1863,6 +1865,7 @@
             <span class="amt-label">Enter Bet Amount · <span class="js-curr-code">BDT</span></span>
             <input id="singleAmt" class="amt-input bn" inputmode="numeric" autocomplete="off" value="১০০" aria-label="Single bet amount in taka" />
           </div>
+          <p class="muted amt-note" id="amtNoteSingle" hidden style="font-size:11px;margin:1px 0 0;text-align:center">Manual amount entry is Super Admin only — use the chips below.</p>
           <p class="potential">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z" /><path d="M7 6H4a1 1 0 0 0-1 1c0 2.2 1.8 4 4 4M17 6h3a1 1 0 0 1 1 1c0 2.2-1.8 4-4 4" /></svg>
             POTENTIAL WIN: <span class="amt bn" id="potWin">৳৯৫০</span> <span class="gold">(9.5x)</span>
@@ -2407,8 +2410,24 @@ function multSingle(){if(!appSettings)return 9.5;return Number(pick(appSettings.
 function multExact(){if(!appSettings)return 950;return Number(pick(appSettings.triple_exact_multiplier,appSettings.tripleExactMultiplier,appSettings.triple_multiplier,appSettings.multipliers&&appSettings.multipliers.tripleExact,appSettings.multipliers&&appSettings.multipliers.exact,950))||950;}
 function multBox(){if(!appSettings)return 900;return Number(pick(appSettings.triple_box_multiplier,appSettings.tripleBoxMultiplier,appSettings.multipliers&&appSettings.multipliers.tripleBox,appSettings.multipliers&&appSettings.multipliers.box,900))||900;}
 function hasPerm(p){if(!currentUser)return false;if(currentUser.role==="super_admin")return true;var perms=currentUser.permissions||myPermissions||[];if(typeof perms==="string")perms=[perms];return perms.indexOf(p)!==-1;}
-function canAccessAdmin(){return currentUser&&["super_admin","admin","draw_controller","agent_manager"].indexOf(currentUser.role)!==-1;}
-function canAccessAgent(){return currentUser&&["super_admin","admin","agent_manager","agent"].indexOf(currentUser.role)!==-1;}
+function canAccessAdmin(){if(!currentUser)return false;return hasPerm("view_dashboard")||hasPerm("declare_winner")||hasPerm("create_users")||hasPerm("view_daily_draw_report")||hasPerm("manage_roles")||hasPerm("modify_app_settings")||hasPerm("edit_transactions");}
+function canAccessAgent(){if(!currentUser)return false;return hasPerm("place_agent_bets");}
+/* Admin pages and the permission that unlocks each (2026-11-13, RULE 2:
+   a panel is hidden — never just disabled — when the user's role does
+   not hold its permission. Super Admin holds all of them.) */
+var ADMIN_PAGE_PERMS={dashboard:"view_dashboard",draw:"declare_winner",users:"create_users","create-user":"create_users",reports:"view_daily_draw_report",branding:"modify_app_settings",staff:"create_users","create-staff":"create_users",audit:"view_dashboard",roles:"manage_roles",transactions:"edit_transactions"};
+function firstAdminPage(){var order=["dashboard","draw","users","create-user","reports","branding","staff","create-staff","audit","roles","transactions"];for(var i=0;i<order.length;i++){if(hasPerm(ADMIN_PAGE_PERMS[order[i]]))return order[i];}return "dashboard";}
+function applyAdminNavGating(){Array.prototype.forEach.call(document.querySelectorAll(".anav"),function(b){var pg=b.getAttribute("data-apage");b.hidden=!hasPerm(ADMIN_PAGE_PERMS[pg]);});}
+function updateAmountUI(){
+  /* Bet amount: typing is Super Admin only (2026-11-13, RULE 3). Users
+     set the amount with the chips; the input is read-only for them.
+     The Triple amount is set by chips / the SA-only MANUAL box only
+     (no typing input exists there). Agent inputs stay editable: agents
+     have no chips, and typing the player's amount is their job. */
+  var isSA=currentUser&&currentUser.role==="super_admin";
+  var el=$("singleAmt"); if(el){el.readOnly=!isSA; el.title=isSA?"Type any amount (10–1000)":"Manual amount entry is Super Admin only — use the chips below";}
+  var note=$("amtNoteSingle"); if(note)note.hidden=isSA||!currentUser;
+}
 var ROLE_ORDER=["super_admin","admin","draw_controller","agent_manager","agent","user"];
 var ROLE_LABEL={super_admin:"Super Admin",admin:"Admin",draw_controller:"Draw Controller",agent_manager:"Agent Manager",agent:"Agent",user:"User"};
 function rolesBelow(role){var i=ROLE_ORDER.indexOf(role);if(i===-1)return ["user"];return ROLE_ORDER.slice(i+1);}
@@ -2438,7 +2457,7 @@ function updateCanPlayUI(){
 }
 
 /* ---------- Auth UI ---------- */
-function showAuth(){
+function showAuth(sa){
   document.body.classList.remove("logged-in");
   clearTokens(); currentUser=null;
   if($("view-auth"))$("view-auth").hidden=false;
@@ -2447,6 +2466,15 @@ function showAuth(){
   if($("userChip"))$("userChip").hidden=true;
   if($("currencyBar"))$("currencyBar").style.display="none";
   if(pollTimer)clearInterval(pollTimer); if(cdTimer)clearInterval(cdTimer);
+  setSaAuthMode(!!sa);
+}
+function setSaAuthMode(on){
+  /* Super Admin entry (2026-11-13, RULE 1): same login form, but the
+     heading says so, and a Super Admin lands directly in the Admin
+     panel after signing in. */
+  if($("authTitle"))$("authTitle").textContent=on?"Super Admin Login":"Sign in to wini99";
+  if($("authSub"))$("authSub").textContent=on?"Sign in with your Super Admin account — you will land directly in the Admin panel.":"Use your email or username and password.";
+  if(on){var tl=$("tabLogin"),tr=$("tabRegister");if(tl)tl.classList.add("active");if(tr)tr.classList.remove("active");if($("loginForm"))$("loginForm").hidden=false;if($("registerForm"))$("registerForm").hidden=true;}
 }
 function gateSAOnly(el){
   // Disable an admin-panel action button for non-Super-Admins and show a
@@ -2482,9 +2510,15 @@ function showApp(){
   if($("userRoleLabel"))$("userRoleLabel").textContent=ROLE_LABEL[currentUser&&currentUser.role]||(currentUser&&currentUser.role)||"";
   if($("navAgent"))$("navAgent").hidden=!canAccessAgent();
   if($("navAdmin"))$("navAdmin").hidden=!canAccessAdmin();
+  var md=$("menuDrop");
+  if(md){var mg=md.querySelector('button[data-go="agent"]');if(mg)mg.hidden=!canAccessAgent();var ma=md.querySelector('button[data-go="admin"]');if(ma)ma.hidden=!canAccessAdmin();var ms=$("menuSaLogin");if(ms)ms.hidden=!guest;}
   updateCanPlayUI();
-  // default view: player for users, agent for agents, admin for staff without player? Keep player default for all, admin users can switch
-  showView(currentUser&&currentUser.role==="agent"?"agent":(canAccessAdmin()&&currentUser.role!=="user"?"player":"player"));
+  updateAmountUI();
+  applyAdminNavGating();
+  // landing (2026-11-13, RULE 1): Super Admin goes straight to the
+  // Admin panel; everyone else lands in the player/user view.
+  if(currentUser&&currentUser.role==="super_admin"){showView("admin");showAdminPage(firstAdminPage());}
+  else showView("player");
   // SA-only panel controls (2026-11-13): only Super Admin may change
   // admin-panel data. The SA manual box, DECLARE buttons, DRAW NOW and
   // SAVE SETTINGS are Super Admin only; other staff see them disabled
@@ -2849,6 +2883,10 @@ window.renderAll=renderAll;
 /* ---------- Views ---------- */
 function showView(name){
   if(!currentUser&&name!=="player"){showAuth();return;}
+  // permission-gated views (2026-11-13, RULE 2): a panel the user has
+  // no permission for is hidden, never just disabled — bounce to player.
+  if(name==="admin"&&!canAccessAdmin()){showView("player");return;}
+  if(name==="agent"&&!canAccessAgent()){showView("player");return;}
   ["player","agent","admin"].forEach(function(v){ var el=$("view-"+v); if(el)el.hidden=v!==name; });
   Array.prototype.forEach.call(document.querySelectorAll(".vnav"),function(b){b.classList.toggle("active",b.getAttribute("data-view")===name);});
   Array.prototype.forEach.call(document.querySelectorAll(".role-btn"),function(b){b.classList.toggle("active",b.getAttribute("data-view")===name);});
@@ -2858,6 +2896,9 @@ function showView(name){
 }
 window.showView=showView;
 function showAdminPage(name){
+  // a page the user has no permission for is hidden — fall back to the
+  // first permitted page, or the player view if there is none.
+  if(!hasPerm(ADMIN_PAGE_PERMS[name])){var fb=firstAdminPage();if(!hasPerm(ADMIN_PAGE_PERMS[fb])){showView("player");return;}name=fb;}
   ["dashboard","draw","users","create-user","reports","branding","staff","create-staff","audit","roles","transactions"].forEach(function(pg){var el=$("apage-"+pg);if(el)el.hidden=pg!==name;});
   Array.prototype.forEach.call(document.querySelectorAll(".anav"),function(b){b.classList.toggle("active",b.getAttribute("data-apage")===name);});
   if(name==="roles"){if($("rolesMain"))$("rolesMain").hidden=false;if($("roleDetails"))$("roleDetails").hidden=true; loadRolesAndPerms();}
@@ -2898,14 +2939,15 @@ function buildUI(){
 function wire(){
   buildUI();
   // auth tabs
-  if($("tabLogin"))$("tabLogin").addEventListener("click",function(){this.classList.add("active");$("tabRegister").classList.remove("active");$("loginForm").hidden=false;$("registerForm").hidden=true;setAuthError("");});
-  if($("tabRegister"))$("tabRegister").addEventListener("click",function(){this.classList.add("active");$("tabLogin").classList.remove("active");$("loginForm").hidden=true;$("registerForm").hidden=false;setAuthError("");});
+  if($("tabLogin"))$("tabLogin").addEventListener("click",function(){this.classList.add("active");$("tabRegister").classList.remove("active");$("loginForm").hidden=false;$("registerForm").hidden=true;setAuthError("");setSaAuthMode(false);});
+  if($("tabRegister"))$("tabRegister").addEventListener("click",function(){this.classList.add("active");$("tabLogin").classList.remove("active");$("loginForm").hidden=true;$("registerForm").hidden=false;setAuthError("");setSaAuthMode(false);});
   if($("loginForm"))$("loginForm").addEventListener("submit",handleLogin);
   if($("registerForm"))$("registerForm").addEventListener("submit",handleRegister);
   if($("logoutBtn"))$("logoutBtn").addEventListener("click",logout);
   if($("logoutBtn2"))$("logoutBtn2").addEventListener("click",logout);
   if($("headerSignInBtn"))$("headerSignInBtn").addEventListener("click",function(){showAuth();});
   if($("guestBackBtn"))$("guestBackBtn").addEventListener("click",function(){enterGuest();});
+  if($("saLoginLink"))$("saLoginLink").addEventListener("click",function(){setSaAuthMode(true);var li=$("loginIdentifier");if(li)li.focus();});
   ["canPlayNoteSingle","canPlayNoteTriple","canPlayNoteAgent"].forEach(function(id){var el=$(id);if(el)el.addEventListener("click",function(){if(!currentUser)showAuth();});});
   // view nav
   Array.prototype.forEach.call(document.querySelectorAll(".vnav"),function(b){b.addEventListener("click",function(){showView(b.getAttribute("data-view"));});});
@@ -2999,7 +3041,7 @@ function wire(){
   var menuDrop=$("menuDrop");
   if($("menuBtn")&&menuDrop)$("menuBtn").addEventListener("click",function(){menuDrop.hidden=!menuDrop.hidden;});
   document.addEventListener("click",function(e){if(menuDrop&&!menuDrop.hidden&&!e.target.closest(".topbar"))menuDrop.hidden=true;});
-  if(menuDrop)Array.prototype.forEach.call(menuDrop.querySelectorAll("button"),function(b){if(b.id==="logoutBtn")return;b.addEventListener("click",function(){menuDrop.hidden=true;var go=b.getAttribute("data-go");if(!currentUser&&go!=="player"&&go!=="how"){showAuth();return;}if(go==="how"||go==="extras"){showView("player");$("extrasModal").hidden=false;loadMyBets();loadShowcase();}else if(go){showView(go);}});});
+  if(menuDrop)Array.prototype.forEach.call(menuDrop.querySelectorAll("button"),function(b){if(b.id==="logoutBtn")return;b.addEventListener("click",function(){menuDrop.hidden=true;var go=b.getAttribute("data-go");if(go==="sa-login"){showAuth(true);return;}if(!currentUser&&go!=="player"&&go!=="how"){showAuth();return;}if(go==="how"||go==="extras"){showView("player");$("extrasModal").hidden=false;loadMyBets();loadShowcase();}else if(go){showView(go);}});});
   if($("findAgentBtn"))$("findAgentBtn").addEventListener("click",function(){$("agentModal").hidden=false;loadAgentsList();if(allUsers.length)loadAgentsListFromUsers();});
   if($("agentModalClose"))$("agentModalClose").addEventListener("click",function(){$("agentModal").hidden=true;});
   if($("agentModal"))$("agentModal").addEventListener("click",function(e){if(e.target===this)this.hidden=true;});
