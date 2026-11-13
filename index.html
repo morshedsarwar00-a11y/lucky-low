@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light" />
     <link rel="icon" href="data:," />
-    <title>Lucky Low</title>
+    <title>wini99</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Baloo+2:wght@600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -749,7 +749,7 @@
       .how-card.c3{background:linear-gradient(180deg,#2a1660,#100a30)}
 
       /* ---------- DREAMY PASTEL RESTYLE: soft cloudy sky, pink-purple, glossy & bubbly ----------
-         Lucky Low's own branding kept: LUCKY LOW logo, gold coins, gold + neon game accents.
+         wini99's own branding kept: wini99 logo, gold coins, gold + neon game accents.
          Light surfaces everywhere (Player / Agent / Admin); deep plum text stays readable. */
       :root{
         --text:#3d2364; --muted:#7e6fa3;
@@ -972,7 +972,7 @@
       }
 
       /* ---------- TEMPLE SUNSET GOLD: stone tiles, gold frames, gems, multiplier column, big spin ----------
-         Fortune-Gems-style mood with Lucky Low's own original art. Game rules, Agent and Admin unchanged. */
+         Fortune-Gems-style mood with wini99's own original art. Game rules, Agent and Admin unchanged. */
       :root{
         --text:#3a2408; --muted:#8a6d3b;
         --line:#d9be82; --line2:#b98d3e;
@@ -1749,7 +1749,7 @@
     </div>
 
     <header class="topbar">
-      <div class="logo" aria-label="Lucky Low"><span class="l1" id="brandL1">LUCKY</span><span class="l2" id="brandL2">LOW</span></div>
+      <div class="logo" aria-label="wini99"><span class="l1" id="brandL1">WINI</span><span class="l2" id="brandL2">99</span></div>
       <div class="top-actions">
         <div class="balance-pill" id="balancePill" title="Your balance">
           <svg width="22" height="22" aria-hidden="true"><use href="#coinSym" /></svg>
@@ -1794,7 +1794,7 @@
     
     <section id="view-auth" class="wrap">
       <div class="auth-card">
-        <h1 id="authTitle">Sign in to Lucky Low</h1>
+        <h1 id="authTitle">Sign in to wini99</h1>
         <p class="sub" id="authSub">Use your email or username and password.</p>
         <div class="auth-tabs">
           <button type="button" id="tabLogin" class="active">LOGIN</button>
@@ -2135,7 +2135,7 @@
                 <h3 class="section-head">App Branding</h3>
                 <p class="muted" style="margin:0 0 4px; font-size:13.5px">The app header reads these values as soon as you save.</p>
                 <label class="fld-label" for="brandName">Brand Name</label>
-                <input id="brandName" class="txt-input" autocomplete="off" value="Lucky Low" />
+                <input id="brandName" class="txt-input" autocomplete="off" value="wini99" />
                 <label class="fld-label" for="brandDrawInterval">Draw interval (minutes)</label>
                 <input id="brandDrawInterval" class="txt-input" inputmode="numeric" placeholder="e.g. 60" />
                 <label class="fld-label" for="brandSingleMult">Single multiplier</label>
@@ -2561,7 +2561,7 @@ async function loadSettings(){
 function applySettingsToUI(){
   if(!appSettings)return;
   var name=pick(appSettings.app_name,appSettings.appName,appSettings.name,appSettings.brand_name);
-  if(name){ var parts=String(name).split(/\s+/); if($("brandL1"))$("brandL1").textContent=(parts[0]||"LUCKY").toUpperCase(); if($("brandL2"))$("brandL2").textContent=(parts.slice(1).join(" ")||"").toUpperCase(); document.title=name; if($("brandName"))$("brandName").value=name; }
+  if(name){ var disp=/^lucky\s+low$/i.test(String(name))?"wini99":String(name); var parts=disp==="wini99"?["wini","99"]:disp.split(/\s+/); if($("brandL1"))$("brandL1").textContent=(parts[0]||"WINI").toUpperCase(); if($("brandL2"))$("brandL2").textContent=(parts.slice(1).join(" ")||"").toUpperCase(); document.title=disp; if($("brandName"))$("brandName").value=disp; }
   if($("brandDrawInterval"))$("brandDrawInterval").value=pick(appSettings.draw_interval_minutes,appSettings.drawInterval,appSettings.draw_interval,"")||"";
   if($("brandSingleMult"))$("brandSingleMult").value=multSingle();
   if($("brandTripleExact"))$("brandTripleExact").value=multExact();
@@ -2992,7 +2992,7 @@ function wire(){
     if(!uid||!amt){toast("Enter a user ID and amount");return;}
     try{await api("/api/transactions/adjust",{method:"POST",body:{userId:uid,amount:amt,note:note}});toast("Balance adjusted");loadTransactions();loadUsers();}catch(e){toast(errMsg(e));}
   });
-  if($("repCsv"))$("repCsv").addEventListener("click",async function(){try{await apiDownload("/api/reports/daily-draw.csv","lucky-low-daily-report.csv");toast("CSV report downloaded");}catch(e){toast(errMsg(e));}});
+  if($("repCsv"))$("repCsv").addEventListener("click",async function(){try{await apiDownload("/api/reports/daily-draw.csv","wini99-daily-report.csv");toast("CSV report downloaded");}catch(e){toast(errMsg(e));}});
   if($("extrasClose"))$("extrasClose").addEventListener("click",function(){$("extrasModal").hidden=true;});
   if($("extrasModal"))$("extrasModal").addEventListener("click",function(e){if(e.target===this)this.hidden=true;});
   // header menu
