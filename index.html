@@ -2448,6 +2448,25 @@ function showAuth(){
   if($("currencyBar"))$("currencyBar").style.display="none";
   if(pollTimer)clearInterval(pollTimer); if(cdTimer)clearInterval(cdTimer);
 }
+function gateSAOnly(el){
+  // Disable an admin-panel action button for non-Super-Admins and show a
+  // short "Super Admin only" note after it. Idempotent: safe to call on
+  // every showApp() (login, guest, refresh).
+  if(!el) return;
+  var isSA=currentUser&&currentUser.role==="super_admin";
+  el.disabled=!isSA;
+  var nx=el.nextElementSibling;
+  var hasNote=nx&&nx.classList&&nx.classList.contains("sa-only-note");
+  if(!isSA&&!hasNote){
+    var n=document.createElement("p");
+    n.className="muted sa-only-note";
+    n.style.cssText="font-size:12px;margin:6px 0 0";
+    n.textContent="Super Admin only";
+    el.insertAdjacentElement("afterend",n);
+  }else if(isSA&&hasNote){
+    nx.remove();
+  }
+}
 function showApp(){
   document.body.classList.add("logged-in");
   if($("view-auth"))$("view-auth").hidden=true;
@@ -2466,10 +2485,17 @@ function showApp(){
   updateCanPlayUI();
   // default view: player for users, agent for agents, admin for staff without player? Keep player default for all, admin users can switch
   showView(currentUser&&currentUser.role==="agent"?"agent":(canAccessAdmin()&&currentUser.role!=="user"?"player":"player"));
-  // SA manual box visibility by declare_winner permission
-  var isSA=currentUser&&(currentUser.role==="super_admin"||hasPerm("declare_winner"));
+  // SA-only panel controls (2026-11-13): only Super Admin may change
+  // admin-panel data. The SA manual box, DECLARE buttons, DRAW NOW and
+  // SAVE SETTINGS are Super Admin only; other staff see them disabled
+  // with a "Super Admin only" note.
+  var isSA=currentUser&&currentUser.role==="super_admin";
   document.body.classList.toggle("sa-on",!!isSA);
   var saBox=$("saBox"); if(saBox) saBox.style.display=isSA?"flex":"none";
+  gateSAOnly($("declareSingleBtn"));
+  gateSAOnly($("declareTripleBtn"));
+  gateSAOnly($("drawNowBtn"));
+  gateSAOnly($("brandSave"));
 }
 function setAuthError(msg){var e=$("authError");if(!e)return;e.textContent=msg||"";e.classList.toggle("show",!!msg);var ok=$("authOk");if(ok&&msg){ok.classList.remove("show");}}
 function setAuthOk(msg){var e=$("authOk");if(!e)return;e.textContent=msg||"";e.classList.toggle("show",!!msg);}
@@ -2682,9 +2708,9 @@ async function loadUsers(){
     // populate create user + staff selects
     var cu=$("cuType"); if(cu){cu.innerHTML=creatableRoles.map(function(r){return '<option value="'+r+'">'+esc(ROLE_LABEL[r]||r)+"</option>";}).join("");}
     var cs=$("csRoles"); if(cs){cs.innerHTML=creatableRoles.map(function(r,i){return '<button type="button" class="opt-btn'+(i===0?" sel":"")+'" data-role="'+r+'">'+esc(ROLE_LABEL[r]||r)+"</button>";}).join(""); Array.prototype.forEach.call(cs.children,function(b){b.addEventListener("click",function(){Array.prototype.forEach.call(cs.children,function(x){x.classList.remove("sel");});b.classList.add("sel");});});}
-    if($("usersTable"))$("usersTable").innerHTML=allUsers.length?allUsers.map(function(u){u=normUser(u);var nm=u.fullName||u.name||u.username||"—";var st=u.status||"active";var delBtn=currentUser&&currentUser.role==="super_admin"?'<button type="button" class="mini-btn" data-deluser="'+esc(u.id)+'">DELETE</button>':"";var statusBtn='<button type="button" class="mini-btn" data-statususer="'+esc(u.id)+'" data-cur="'+esc(st)+'">'+(st==="active"?"SUSPEND":"ACTIVATE")+"</button>";var cpOn=u.can_play===true;var cpBtn=currentUser&&currentUser.role==="super_admin"?'<button type="button" class="mini-btn'+(cpOn?" cp-on":"")+'" data-canplay="'+esc(u.id)+'" data-cur="'+(cpOn?"1":"0")+'">'+(cpOn?"CAN PLAY: ON":"CAN PLAY: OFF")+"</button>":'<span class="st '+(cpOn?"st-won":"st-lost")+'">'+(cpOn?"ON":"OFF")+"</span>";return "<tr><td>"+esc(nm)+"</td><td>"+esc(u.email||u.username||u.id||"")+"</td><td>"+esc(ROLE_LABEL[u.role]||u.role||"")+'</td><td class="amt bn">'+tk((u.balance_coins!=null?u.balance_coins:u.balance)||0)+'</td><td><span class="st '+(st==="active"?"st-won":"st-lost")+'">'+esc(String(st).toUpperCase())+'</span></td><td>'+cpBtn+"</td><td>"+statusBtn+" "+delBtn+"</td></tr>";}).join(""):'<tr><td colspan="7" style="text-align:center;color:#8a6d3b">No users yet.</td></tr>';
+    if($("usersTable"))$("usersTable").innerHTML=allUsers.length?allUsers.map(function(u){u=normUser(u);var isSAUser=currentUser&&currentUser.role==="super_admin";var nm=u.fullName||u.name||u.username||"—";var st=u.status||"active";var delBtn=currentUser&&currentUser.role==="super_admin"?'<button type="button" class="mini-btn" data-deluser="'+esc(u.id)+'">DELETE</button>':"";var statusBtn=isSAUser?'<button type="button" class="mini-btn" data-statususer="'+esc(u.id)+'" data-cur="'+esc(st)+'">'+(st==="active"?"SUSPEND":"ACTIVATE")+"</button>":'<span class="muted" style="font-size:11px">Super Admin only</span>';var cpOn=u.can_play===true;var cpBtn=currentUser&&currentUser.role==="super_admin"?'<button type="button" class="mini-btn'+(cpOn?" cp-on":"")+'" data-canplay="'+esc(u.id)+'" data-cur="'+(cpOn?"1":"0")+'">'+(cpOn?"CAN PLAY: ON":"CAN PLAY: OFF")+"</button>":'<span class="st '+(cpOn?"st-won":"st-lost")+'">'+(cpOn?"ON":"OFF")+"</span>";return "<tr><td>"+esc(nm)+"</td><td>"+esc(u.email||u.username||u.id||"")+"</td><td>"+esc(ROLE_LABEL[u.role]||u.role||"")+'</td><td class="amt bn">'+tk((u.balance_coins!=null?u.balance_coins:u.balance)||0)+'</td><td><span class="st '+(st==="active"?"st-won":"st-lost")+'">'+esc(String(st).toUpperCase())+'</span></td><td>'+cpBtn+"</td><td>"+statusBtn+" "+delBtn+"</td></tr>";}).join(""):'<tr><td colspan="7" style="text-align:center;color:#8a6d3b">No users yet.</td></tr>';
     Array.prototype.forEach.call(document.querySelectorAll("[data-deluser]"),function(b){b.addEventListener("click",async function(){try{await api("/api/users/"+b.getAttribute("data-deluser"),{method:"DELETE"});toast("User deleted");loadUsers();}catch(e){toast(errMsg(e));}});});
-    Array.prototype.forEach.call(document.querySelectorAll("[data-statususer]"),function(b){b.addEventListener("click",async function(){var curSt=b.getAttribute("data-cur");var ns=curSt==="active"?"suspended":"active";try{await api("/api/users/"+b.getAttribute("data-statususer")+"/status",{method:"PATCH",body:{status:ns}});toast("Status updated");loadUsers();}catch(e){toast(errMsg(e));}});});
+    Array.prototype.forEach.call(document.querySelectorAll("[data-statususer]"),function(b){b.addEventListener("click",async function(){var curSt=b.getAttribute("data-cur");var ns=curSt==="active"?"inactive":"active";try{await api("/api/users/"+b.getAttribute("data-statususer")+"/status",{method:"PATCH",body:{status:ns}});toast("Status updated");loadUsers();}catch(e){toast(errMsg(e));}});});
     Array.prototype.forEach.call(document.querySelectorAll("[data-canplay]"),function(b){b.addEventListener("click",async function(){var nv=b.getAttribute("data-cur")!=="1";try{await api("/api/users/"+b.getAttribute("data-canplay")+"/can-play",{method:"PATCH",body:{canPlay:nv}});toast(nv?"Can Play enabled":"Can Play disabled");loadUsers();}catch(e){toast(errMsg(e));}});});
     // staff table = users with staff roles
     var staff=allUsers.filter(function(u){return u.role!=="user";});
@@ -2730,18 +2756,24 @@ async function openRoleDetails(rn,permsData){
   }
   if($("rdPerms"))$("rdPerms").innerHTML=perms.length?perms.map(function(pr){var label=typeof pr==="string"?pr:(pr.label||pr.name||pr.key||pr);var key=typeof pr==="string"?pr:(pr.key||pr.name||"");return '<div class="perm-row"><span class="dot"></span><span>'+esc(label)+"<small>"+esc(key)+'</small></span><span class="st st-won">ALLOWED</span></div>';}).join(""):'<p class="empty">No permission details returned by the server for this role.</p>';
   if($("rolesMain"))$("rolesMain").hidden=true; if($("roleDetails"))$("roleDetails").hidden=false;
-  // Permissions editing (super_admin/admin only): PUT /api/permissions/:role
+  // Permissions editing (Super Admin only, 2026-11-13): PUT /api/permissions/:role
   var rd=$("rdPerms");
-  if(rd && (currentUser&&(currentUser.role==="super_admin"||currentUser.role==="admin"))){
+  if(rd && currentUser&&currentUser.role==="super_admin"){
     var sb=document.createElement("button"); sb.type="button"; sb.className="btn-green wide-btn"; sb.textContent="SAVE PERMISSIONS";
     sb.addEventListener("click",async function(){ try{ await api("/api/permissions/"+encodeURIComponent(rn),{method:"PUT",body:{permissions:perms}}); toast("Permissions saved"); }catch(e){ toast(errMsg(e)); } });
     rd.appendChild(sb);
+  }else if(rd){
+    var nm=document.createElement("p"); nm.className="muted"; nm.style.fontSize="12px"; nm.textContent="Super Admin only — permissions can only be changed by a Super Admin.";
+    rd.appendChild(nm);
   }
 }
 function renderAssign(){
   var el=$("assignList"); if(!el)return;
+  // Role changes are Super Admin-only (2026-11-13): other staff see the
+  // role pills disabled and a "Super Admin only" note instead of SAVE ROLE.
+  var isSA=currentUser&&currentUser.role==="super_admin";
   var staff=allUsers.filter(function(u){return u.role!=="user";});
-  el.innerHTML=staff.length?staff.map(function(u,i){var btns=ROLE_ORDER.map(function(rn){var on=u.role===rn;return '<button type="button" class="opt-btn'+(on?" sel":"")+'" data-asg="'+i+'" data-role="'+esc(rn)+'" data-uid="'+esc(u.id)+'">'+esc(ROLE_LABEL[rn]||rn)+"</button>";}).join("");return '<div class="assign-row"><b>'+esc(u.fullName||u.name||u.username||"")+"</b><small>"+esc(u.email||u.username||"")+'</small><div class="opt-row">'+btns+'</div><div class="row2"><button type="button" class="btn-green" data-saveassign="'+esc(u.id)+'">SAVE ROLE</button></div></div>';}).join(""):'<p class="empty">No staff accounts to assign roles to yet.</p>';
+  el.innerHTML=staff.length?staff.map(function(u,i){var btns=ROLE_ORDER.map(function(rn){var on=u.role===rn;return '<button type="button" class="opt-btn'+(on?" sel":"")+'"'+(isSA?"":" disabled")+' data-asg="'+i+'" data-role="'+esc(rn)+'" data-uid="'+esc(u.id)+'">'+esc(ROLE_LABEL[rn]||rn)+"</button>";}).join("");return '<div class="assign-row"><b>'+esc(u.fullName||u.name||u.username||"")+"</b><small>"+esc(u.email||u.username||"")+'</small><div class="opt-row">'+btns+'</div><div class="row2">'+(isSA?'<button type="button" class="btn-green" data-saveassign="'+esc(u.id)+'">SAVE ROLE</button>':'<span class="muted" style="font-size:12px">Super Admin only</span>')+"</div></div>";}).join(""):'<p class="empty">No staff accounts to assign roles to yet.</p>';
   Array.prototype.forEach.call(el.querySelectorAll("[data-asg]"),function(b){b.addEventListener("click",function(){var idx=b.getAttribute("data-asg");Array.prototype.forEach.call(el.querySelectorAll('[data-asg="'+idx+'"]'),function(x){x.classList.remove("sel");});b.classList.add("sel");});});
   Array.prototype.forEach.call(el.querySelectorAll("[data-saveassign]"),function(b){b.addEventListener("click",async function(){var uid=b.getAttribute("data-saveassign");var sel=el.querySelector('[data-uid="'+uid+'"].sel');if(!sel){toast("Select a role first");return;}var role=sel.getAttribute("data-role");try{await api("/api/roles/"+encodeURIComponent(role)+"/users",{method:"POST",body:{userId:uid}});toast("Role saved");loadUsers();loadRolesAndPerms();}catch(e){ // fallback PATCH user
     try{await api("/api/users/"+uid,{method:"PATCH",body:{role:role}});toast("Role saved");loadUsers();loadRolesAndPerms();}catch(e2){toast(errMsg(e2));}
@@ -2768,7 +2800,7 @@ async function loadTransactions(){
   try{ var d=await api("/api/transactions"); var list=unwrapList(d);
     el.innerHTML=list.length?list.map(function(tx){var when=tx.created_at||tx.createdAt||tx.time||"";return "<tr><td>"+esc(when?new Date(when).toLocaleString():"—")+"</td><td>"+esc(tx.username||tx.user||tx.user_id||tx.userId||"—")+"</td><td>"+esc(tx.type||tx.kind||"—")+'</td><td class="amt bn">'+tk(tx.amount||0)+"</td><td>"+esc(tx.note||tx.description||"—")+"</td></tr>";}).join(""):'<tr><td colspan="5" style="text-align:center;color:#8a6d3b">No transactions yet.</td></tr>';
   }catch(e){ el.innerHTML='<tr><td colspan="5" style="text-align:center;color:#8a6d3b">No transactions yet.</td></tr>'; }
-  var adj=$("txAdjustBtn"); if(adj) adj.style.display=(currentUser&&(currentUser.role==="super_admin"||currentUser.role==="admin"))?"":"none";
+  var adj=$("txAdjustBtn"); if(adj) adj.style.display=(currentUser&&currentUser.role==="super_admin")?"":"none";
 }
 async function loadRisk(){
   try{ var d=await api("/api/draws/risk"); var r=unwrapObj(d)||d||{};
@@ -2927,7 +2959,7 @@ function wire(){
     try{await api("/api/users",{method:"POST",body:body});toast("Account created: "+name+" — "+(ROLE_LABEL[role]||role));$("csName").value="";$("csLogin").value="";if($("csUsername"))$("csUsername").value="";$("csPass").value="";loadUsers();showAdminPage("staff");}catch(e){toast(errMsg(e));}
   });
   if($("brandSave"))$("brandSave").addEventListener("click",async function(){
-    if(!(currentUser&&(currentUser.role==="super_admin"||currentUser.role==="admin"))){toast("You don't have permission for this");return;}
+    if(!(currentUser&&currentUser.role==="super_admin")){toast("Super Admin only");return;}
     var body={};
     var nm=$("brandName").value.trim(); if(nm)body.app_name=nm;
     var di=parseInt($("brandDrawInterval").value,10); if(!isNaN(di))body.draw_interval_minutes=di;
@@ -2937,8 +2969,9 @@ function wire(){
     var acc=$("brandAccent")?$("brandAccent").value:""; if(acc)body.theme_color=acc;
     try{await api("/api/settings",{method:"PUT",body:body});toast("Settings saved");await loadSettings();renderAll();}catch(e){toast(errMsg(e));}
   });
-  if($("drawNowBtn"))$("drawNowBtn").addEventListener("click",async function(){try{await api("/api/draws/draw-now",{method:"POST",body:{}});toast("Draw triggered");await loadCurrentDraw();loadShowcase();loadHistory();}catch(e){toast(errMsg(e));}});
+  if($("drawNowBtn"))$("drawNowBtn").addEventListener("click",async function(){if(!(currentUser&&currentUser.role==="super_admin")){toast("Super Admin only");return;}try{await api("/api/draws/draw-now",{method:"POST",body:{}});toast("Draw triggered");await loadCurrentDraw();loadShowcase();loadHistory();}catch(e){toast(errMsg(e));}});
   if($("declareSingleBtn"))$("declareSingleBtn").addEventListener("click",async function(){
+    if(!(currentUser&&currentUser.role==="super_admin")){toast("Super Admin only");return;}
     if(!currentDraw||!currentDraw.id){toast("No open draw right now");return;}
     var low=loadRisk&&loadRisk._lowSingle; var r=loadRisk&&loadRisk._risk; var lowVal=null;
     if(r){ lowVal=pick(r.lowest_single,r.lowestSingle); if(lowVal&&typeof lowVal==="object")lowVal=lowVal.num; }
@@ -2947,12 +2980,14 @@ function wire(){
     try{await api("/api/draws/"+currentDraw.id+"/declare",{method:"POST",body:{winningSingle:win}});toast("Declared Single Winner: "+win);loadCurrentDraw();loadShowcase();}catch(e){toast(errMsg(e));}
   });
   if($("declareTripleBtn"))$("declareTripleBtn").addEventListener("click",async function(){
+    if(!(currentUser&&currentUser.role==="super_admin")){toast("Super Admin only");return;}
     if(!currentDraw||!currentDraw.id){toast("No open draw right now");return;}
     var r=loadRisk&&loadRisk._risk; var lowT=r?pick(r.lowest_triple,r.lowestTriple):null; if(lowT&&typeof lowT==="object")lowT=lowT.num||lowT.pick;
     if(!lowT){toast("No lowest 3D number available from risk analysis");return;}
     try{await api("/api/draws/"+currentDraw.id+"/declare",{method:"POST",body:{winningTriple:String(lowT).padStart(3,"0")}});toast("Declared Triple Winner: "+lowT);loadCurrentDraw();loadShowcase();}catch(e){toast(errMsg(e));}
   });
   if($("txAdjustBtn"))$("txAdjustBtn").addEventListener("click",async function(){
+    if(!(currentUser&&currentUser.role==="super_admin")){toast("Super Admin only");return;}
     var uid=$("txUserId").value.trim();var amt=parseAmt($("txAmount").value);var note=$("txNote").value.trim();
     if(!uid||!amt){toast("Enter a user ID and amount");return;}
     try{await api("/api/transactions/adjust",{method:"POST",body:{userId:uid,amount:amt,note:note}});toast("Balance adjusted");loadTransactions();loadUsers();}catch(e){toast(errMsg(e));}
