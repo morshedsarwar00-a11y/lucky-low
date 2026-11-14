@@ -1748,10 +1748,16 @@
          backgrounds, so readability and the one-viewport fit are unchanged.
          The coins live in .bg-coins (position:fixed, z-index:0, pointer-events:none)
          under all content (.wrap is z-index:1, topbar z-index:60), so they can
-         never cover or intercept a button, digit, chip, countdown or SIGN IN. */
+         never cover or intercept a button, digit, chip, countdown or SIGN IN.
+         v1.3.1 (2026-11-14): the user saw NO money in the header — the opaque
+         white topbar (z-60) covered the z-0 coins there. The topbar background is
+         now transparent with backdrop-filter:none (the base blur would have
+         smeared the coins), so the coins show through behind the logo, SIGN IN
+         and menu — those stay on top and fully readable. The menu dropdown keeps
+         its own opaque panel background. White page background unchanged. */
       body{background:#ffffff}
       .temple-backdrop{display:none}
-      .topbar{background:#ffffff; border-bottom:1.5px solid #e8d49a; box-shadow:0 4px 16px rgba(90,60,0,.12)}
+      .topbar{background:transparent; backdrop-filter:none; -webkit-backdrop-filter:none; border-bottom:1.5px solid #e8d49a; box-shadow:0 4px 16px rgba(90,60,0,.12)}
       .user-chip{color:#6e5426}
       .bg-coins svg{opacity:.6; filter:drop-shadow(0 3px 8px rgba(90,60,0,.22)); animation:moneyDrift var(--dur,32s) linear infinite; animation-delay:var(--delay,0s)}
       @keyframes moneyDrift{
@@ -2421,7 +2427,7 @@ var API_BASE_URL = "https://lucky-low-api-production.up.railway.app";
    The check NEVER reloads the page by itself; it only shows a small
    floating pill, and only a tap on "Update" reloads (with a cache-buster).
    A failed fetch (offline, or a copy without version.json) stays silent. */
-window.APP_VERSION = "1.3.0";
+window.APP_VERSION = "1.3.1";
 var UPDATE_CHECK_MS = 5*60*1000;
 var _updateLiveVersion = null;
 var _updateDismissedFor = null;
