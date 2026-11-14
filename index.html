@@ -1733,6 +1733,10 @@
       body:not(.logged-in) .view-nav,body:not(.logged-in) .user-chip{display:none !important}
       #view-player,#view-agent,#view-admin{width:100%}
 
+      /* ---- App update pill: fixed overlay only — never pushes layout, never breaks the one-screen fit ---- */
+      #updatePill{position:fixed; right:12px; bottom:12px; z-index:9999; display:flex; align-items:center; gap:8px; max-width:calc(100vw - 24px); padding:8px 8px 8px 12px; border-radius:999px; background:rgba(20,12,2,.96); border:1.5px solid #f5b921; box-shadow:0 8px 24px rgba(0,0,0,.5); color:#ffe9a8; font-size:13px; font-weight:700}
+      #updatePill .upd-go{background:linear-gradient(180deg,#ffd94d,#f5a623); color:#3a2408; border:0; border-radius:999px; padding:6px 12px; font-weight:800; font-size:13px}
+      #updatePill .upd-x{background:transparent; border:0; color:#ffe9a8; font-size:16px; line-height:1; padding:4px 6px}
     </style>
   </head>
   <body>
@@ -2359,6 +2363,66 @@
     <script>
 "use strict";
 var API_BASE_URL = "https://lucky-low-api-production.up.railway.app";
+
+/* ---------- App version + Update button ----------
+   DEPLOY RULE — every deploy MUST bump BOTH:
+   1) window.APP_VERSION below, and 2) version.json in this same folder.
+   If they are not bumped together, the Update button will never appear.
+   The check NEVER reloads the page by itself; it only shows a small
+   floating pill, and only a tap on "Update" reloads (with a cache-buster).
+   A failed fetch (offline, or a copy without version.json) stays silent. */
+window.APP_VERSION = "1.2.0";
+var UPDATE_CHECK_MS = 5*60*1000;
+var _updateLiveVersion = null;
+var _updateDismissedFor = null;
+function _versionIsNewer(live, running){
+  var a=String(live||"").split("."), b=String(running||"").split(".");
+  for(var i=0;i<Math.max(a.length,b.length);i++){
+    var x=parseInt(a[i]||"0",10)||0, y=parseInt(b[i]||"0",10)||0;
+    if(x!==y) return x>y;
+  }
+  return false;
+}
+function _showUpdatePill(show){
+  var p=document.getElementById("updatePill");
+  if(show){
+    if(p){ p.hidden=false; return; }
+    p=document.createElement("div");
+    p.id="updatePill";
+    p.innerHTML='<span>Update available</span><button type="button" class="upd-go">Update</button><button type="button" class="upd-x" aria-label="Dismiss">\u2715</button>';
+    p.querySelector(".upd-go").addEventListener("click",function(){
+      var u=new URL(window.location.href);
+      u.searchParams.set("v", String(Date.now()));
+      window.location.href=u.toString();
+    });
+    p.querySelector(".upd-x").addEventListener("click",function(){
+      _updateDismissedFor=_updateLiveVersion;
+      p.hidden=true;
+    });
+    document.body.appendChild(p);
+  } else if(p){ p.hidden=true; }
+}
+function _updateCheck(){
+  fetch("version.json?t="+Date.now(),{cache:"no-store"})
+    .then(function(r){ if(!r.ok) throw new Error("http "+r.status); return r.json(); })
+    .then(function(j){
+      var live=j && (j.version||j.v);
+      if(!live) return;
+      _updateLiveVersion=String(live);
+      if(_versionIsNewer(_updateLiveVersion, window.APP_VERSION) && _updateDismissedFor!==_updateLiveVersion){
+        _showUpdatePill(true);
+      } else {
+        _showUpdatePill(false);
+      }
+    })
+    .catch(function(){ /* offline / no version.json (e.g. artifact copy) — stay silent */ });
+}
+function _initUpdateCheck(){
+  setTimeout(_updateCheck, 5000);              // first check shortly after load
+  setInterval(_updateCheck, UPDATE_CHECK_MS);  // then every 5 minutes
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden) _updateCheck(); });
+}
+_initUpdateCheck();
 var BN = "০১২৩৪৫৬৭৮৯";
 function bn(n){var s=String(n),dec="";if(s.indexOf(".")!==-1){var p=s.split(".");s=p[0];dec="."+p[1];}var neg=s.charAt(0)==="-";if(neg)s=s.slice(1);var out=s;if(s.length>3){var last=s.slice(-3),rest=s.slice(0,-3),parts=[];while(rest.length>2){parts.unshift(rest.slice(-2));rest=rest.slice(0,-2);}if(rest)parts.unshift(rest);out=parts.join(",")+","+last;}return (neg?"-":"")+(out+dec).replace(/[0-9]/g,function(d){return BN[+d];});}
 var CURR={bdt_bn:{code:"BDT",name:"Bangladesh Taka — Bangla",symbol:"৳",space:false,coin:"৳",digits:"bn"},bdt_en:{code:"BDT",name:"Bangladesh Taka — English",symbol:"৳",space:false,coin:"৳",digits:"en"},usd:{code:"USD",name:"US Dollar — English",symbol:"$",space:false,coin:"$",digits:"en"},qar:{code:"QAR",name:"Qatar Riyal",symbol:"QR",space:true,coin:"QR",digits:"en"}};
