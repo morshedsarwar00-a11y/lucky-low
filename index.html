@@ -1737,6 +1737,32 @@
       #updatePill{position:fixed; right:12px; bottom:12px; z-index:9999; display:flex; align-items:center; gap:8px; max-width:calc(100vw - 24px); padding:8px 8px 8px 12px; border-radius:999px; background:rgba(20,12,2,.96); border:1.5px solid #f5b921; box-shadow:0 8px 24px rgba(0,0,0,.5); color:#ffe9a8; font-size:13px; font-weight:700}
       #updatePill .upd-go{background:linear-gradient(180deg,#ffd94d,#f5a623); color:#3a2408; border:0; border-radius:999px; padding:6px 12px; font-weight:800; font-size:13px}
       #updatePill .upd-x{background:transparent; border:0; color:#ffe9a8; font-size:16px; line-height:1; padding:4px 6px}
+
+      /* ================= WHITE BACKGROUND + FLOATING MONEY (v1.3.0) =================
+         User asked (2026-11-14): page background WHITE, and money (Taka ৳, Dollar $,
+         Qatari Riyal QR) floating slowly around in the background. The dark sunset
+         body gradient and the dark bronze header become plain white; the sunset
+         temple silhouette is hidden (it belongs to the old sunset mood). The old 4
+         bobbing coins become 14 slow-drifting money coins in the app's own 3
+         currencies. Panels, digits, buttons and the logo keep their own
+         backgrounds, so readability and the one-viewport fit are unchanged.
+         The coins live in .bg-coins (position:fixed, z-index:0, pointer-events:none)
+         under all content (.wrap is z-index:1, topbar z-index:60), so they can
+         never cover or intercept a button, digit, chip, countdown or SIGN IN. */
+      body{background:#ffffff}
+      .temple-backdrop{display:none}
+      .topbar{background:#ffffff; border-bottom:1.5px solid #e8d49a; box-shadow:0 4px 16px rgba(90,60,0,.12)}
+      .user-chip{color:#6e5426}
+      .bg-coins svg{opacity:.6; filter:drop-shadow(0 3px 8px rgba(90,60,0,.22)); animation:moneyDrift var(--dur,32s) linear infinite; animation-delay:var(--delay,0s)}
+      @keyframes moneyDrift{
+        0%{transform:translate3d(0,108vh,0) rotate(-14deg); opacity:0}
+        8%{opacity:var(--op,.6)}
+        25%{transform:translate3d(var(--sw1,14px),79vh,0) rotate(-5deg)}
+        50%{transform:translate3d(var(--sw2,-12px),52vh,0) rotate(6deg)}
+        75%{transform:translate3d(var(--sw3,10px),25vh,0) rotate(-4deg)}
+        92%{opacity:var(--op,.6)}
+        100%{transform:translate3d(0,-18vh,0) rotate(10deg); opacity:0}
+      }
     </style>
   </head>
   <body>
@@ -1751,6 +1777,19 @@
           <circle cx="30" cy="30" r="27" fill="url(#goldGrad)" stroke="#8a5f06" stroke-width="2" />
           <circle cx="30" cy="30" r="20.5" fill="none" stroke="#8a5f06" stroke-width="1.6" stroke-dasharray="3.5 3" opacity=".75" />
           <text id="coinSymText" x="30" y="40" text-anchor="middle" font-size="24" font-weight="700" fill="#7a5203" font-family="'Hind Siliguri',sans-serif">৳</text>
+        </symbol>
+        <radialGradient id="greenGrad" cx="38%" cy="32%" r="80%">
+          <stop offset="0%" stop-color="#b8f0c8" /><stop offset="55%" stop-color="#2fae62" /><stop offset="100%" stop-color="#0d7a3d" />
+        </radialGradient>
+        <symbol id="coinDollar" viewBox="0 0 60 60">
+          <circle cx="30" cy="30" r="27" fill="url(#greenGrad)" stroke="#0d5c2e" stroke-width="2" />
+          <circle cx="30" cy="30" r="20.5" fill="none" stroke="#0d5c2e" stroke-width="1.6" stroke-dasharray="3.5 3" opacity=".75" />
+          <text x="30" y="40" text-anchor="middle" font-size="26" font-weight="700" fill="#0a5a2e" font-family="'Hind Siliguri',sans-serif">$</text>
+        </symbol>
+        <symbol id="coinRiyal" viewBox="0 0 60 60">
+          <circle cx="30" cy="30" r="27" fill="url(#goldGrad)" stroke="#8a5f06" stroke-width="2" />
+          <circle cx="30" cy="30" r="20.5" fill="none" stroke="#8a5f06" stroke-width="1.6" stroke-dasharray="3.5 3" opacity=".75" />
+          <text x="30" y="39" text-anchor="middle" font-size="17" font-weight="800" fill="#7a5203" font-family="'Hind Siliguri',sans-serif">QR</text>
         </symbol>
       </defs>
     </svg>
@@ -1770,10 +1809,21 @@
       </svg>
     </div>
     <div class="bg-coins" aria-hidden="true">
-      <svg style="left:-16px; top:120px; width:64px"><use href="#coinSym" /></svg>
-      <svg style="right:-20px; top:64px; width:76px; animation-delay:-2s"><use href="#coinSym" /></svg>
-      <svg style="right:4%; top:46%; width:46px; animation-delay:-4s"><use href="#coinSym" /></svg>
-      <svg style="left:2%; bottom:8%; width:52px; animation-delay:-1s"><use href="#coinSym" /></svg>
+      <!-- floating money: Taka ৳, Dollar $, Qatari Riyal QR — slow upward drift, each with its own size, speed, delay and sway -->
+      <svg style="left:2%;  top:0; width:64px; --dur:34s; --delay:-6s;  --op:.65; --sw1:18px;  --sw2:-14px; --sw3:10px"><use href="#coinSym" /></svg>
+      <svg style="left:9%;  top:0; width:46px; --dur:28s; --delay:-18s; --op:.55; --sw1:-12px; --sw2:16px;  --sw3:-8px"><use href="#coinDollar" /></svg>
+      <svg style="left:16%; top:0; width:56px; --dur:40s; --delay:-30s; --op:.6;  --sw1:14px;  --sw2:-10px; --sw3:16px"><use href="#coinRiyal" /></svg>
+      <svg style="left:24%; top:0; width:38px; --dur:26s; --delay:-12s; --op:.5;  --sw1:-16px; --sw2:12px;  --sw3:-14px"><use href="#coinSym" /></svg>
+      <svg style="left:31%; top:0; width:62px; --dur:38s; --delay:-24s; --op:.65; --sw1:12px;  --sw2:-18px; --sw3:8px"><use href="#coinDollar" /></svg>
+      <svg style="left:38%; top:0; width:44px; --dur:30s; --delay:-4s;  --op:.55; --sw1:-10px; --sw2:14px;  --sw3:-12px"><use href="#coinRiyal" /></svg>
+      <svg style="left:46%; top:0; width:70px; --dur:42s; --delay:-36s; --op:.7;  --sw1:16px;  --sw2:-12px; --sw3:14px"><use href="#coinSym" /></svg>
+      <svg style="left:54%; top:0; width:40px; --dur:27s; --delay:-14s; --op:.5;  --sw1:-14px; --sw2:10px;  --sw3:-16px"><use href="#coinDollar" /></svg>
+      <svg style="left:61%; top:0; width:58px; --dur:36s; --delay:-28s; --op:.6;  --sw1:10px;  --sw2:-16px; --sw3:12px"><use href="#coinRiyal" /></svg>
+      <svg style="left:68%; top:0; width:48px; --dur:29s; --delay:-8s;  --op:.55; --sw1:-12px; --sw2:18px;  --sw3:-10px"><use href="#coinSym" /></svg>
+      <svg style="left:75%; top:0; width:66px; --dur:41s; --delay:-33s; --op:.65; --sw1:14px;  --sw2:-14px; --sw3:16px"><use href="#coinDollar" /></svg>
+      <svg style="left:82%; top:0; width:42px; --dur:26s; --delay:-20s; --op:.5;  --sw1:-16px; --sw2:12px;  --sw3:-8px"><use href="#coinRiyal" /></svg>
+      <svg style="left:89%; top:0; width:60px; --dur:37s; --delay:-10s; --op:.6;  --sw1:12px;  --sw2:-10px; --sw3:14px"><use href="#coinSym" /></svg>
+      <svg style="left:93%; top:0; width:36px; --dur:25s; --delay:-2s;  --op:.5;  --sw1:-10px; --sw2:14px;  --sw3:-12px"><use href="#coinDollar" /></svg>
     </div>
     <!-- dreamy sparkles -->
     <div class="sparkles" aria-hidden="true">
@@ -2371,7 +2421,7 @@ var API_BASE_URL = "https://lucky-low-api-production.up.railway.app";
    The check NEVER reloads the page by itself; it only shows a small
    floating pill, and only a tap on "Update" reloads (with a cache-buster).
    A failed fetch (offline, or a copy without version.json) stays silent. */
-window.APP_VERSION = "1.2.0";
+window.APP_VERSION = "1.3.0";
 var UPDATE_CHECK_MS = 5*60*1000;
 var _updateLiveVersion = null;
 var _updateDismissedFor = null;
