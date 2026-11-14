@@ -1389,14 +1389,14 @@
         #view-player .digit-grid{max-height:440px}
         #game-triple .reel{height:240px}
       }
-      /* Create User balance: Bengali digits fully visible, centred like the other amount fields */
+      /* Create User balance: amount fully visible in English digits, centred like the other amount fields */
       #cuBalance{text-align:center; padding-left:16px; padding-right:16px}
 
       /* ================= FINAL FIX — three spots from the 1557x652 screenshot =================
          1) POTENTIAL WIN was half-covered: at short heights the amount row (32px) and chips row
             (36px) were FIXED smaller than their content (input 36px, chips 50px), so both spilled
             over the POTENTIAL WIN line. Rows now size to their content — overlap is impossible.
-         2) Chip labels (esp. ৳১,০০০ = 44px wide in a 50px chip) spilled past the chip rim:
+         2) Chip labels (esp. ৳1,000 = 44px wide in a 50px chip) spilled past the chip rim:
             labels never wrap and the 1000 label is scaled to sit inside the rim at every size.
          3) Left edge: grid children can no longer push the stage wider than the panel, and the
             title / sub / multiplier column keep a safe inset inside the frame. */
@@ -1809,7 +1809,7 @@
       <div class="top-actions">
         <div class="balance-pill" id="balancePill" title="Your balance">
           <svg width="22" height="22" aria-hidden="true"><use href="#coinSym" /></svg>
-          <span class="bn" id="balanceVal">০</span><span id="currSymbol">৳</span>
+          <span class="bn" id="balanceVal">0</span><span id="currSymbol">৳</span>
         </div>
         <button class="btn-agent" id="findAgentBtn" type="button">FIND AN AGENT</button>
         <button class="btn-agent" id="headerSignInBtn" type="button" hidden>SIGN IN</button>
@@ -1839,12 +1839,11 @@
       <div class="sa-currency" id="currencyBar">
         <span class="curr-head">GAME CURRENCY <small>Super Admin only — pick the money the whole app plays in</small></span>
         <div class="curr-opts" role="group" aria-label="Super Admin: choose the game currency">
-          <button type="button" class="curr-btn sel" data-curr="bdt_bn">বাংলা · TAKA ৳</button>
-          <button type="button" class="curr-btn" data-curr="bdt_en">ENGLISH · TAKA ৳</button>
+          <button type="button" class="curr-btn sel" data-curr="bdt_en">ENGLISH · TAKA ৳</button>
           <button type="button" class="curr-btn" data-curr="usd">ENGLISH · DOLLAR $</button>
           <button type="button" class="curr-btn" data-curr="qar">QATAR · RIYAL QR</button>
         </div>
-        <p class="curr-note" id="currNote">Now playing in: Bangladesh Taka — Bangla (BDT). Every amount in the app uses this currency.</p>
+        <p class="curr-note" id="currNote">Now playing in: Bangladesh Taka — English (BDT). Every amount in the app uses this currency.</p>
       </div>
     </div>
 
@@ -1865,8 +1864,6 @@
           <input id="loginPassword" class="txt-input" type="password" autocomplete="current-password" placeholder="Your password" />
           <button class="btn-green wide-btn" id="loginBtn" type="submit">SIGN IN</button>
         </form>
-        <button class="btn-ghost wide-btn" id="saLoginLink" type="button" style="margin-top:10px">Super Admin? Sign in as Super Admin →</button>
-        <button class="btn-ghost wide-btn" id="guestBackBtn" type="button" style="margin-top:12px">← Back to games — no sign-in needed</button>
       </div>
     </section>
 
@@ -1897,12 +1894,12 @@
           </div>
           <div class="amt-wrap">
             <span class="amt-label">Enter Bet Amount · <span class="js-curr-code">BDT</span></span>
-            <input id="singleAmt" class="amt-input bn" inputmode="numeric" autocomplete="off" value="১০০" aria-label="Single bet amount in taka" />
+            <input id="singleAmt" class="amt-input bn" inputmode="numeric" autocomplete="off" value="100" aria-label="Single bet amount in taka" />
           </div>
           <p class="muted amt-note" id="amtNoteSingle" hidden style="font-size:11px;margin:1px 0 0;text-align:center">Manual amount entry is Super Admin only — use the chips below.</p>
           <p class="potential">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z" /><path d="M7 6H4a1 1 0 0 0-1 1c0 2.2 1.8 4 4 4M17 6h3a1 1 0 0 1 1 1c0 2.2-1.8 4-4 4" /></svg>
-            POTENTIAL WIN: <span class="amt bn" id="potWin">৳৯৫০</span>
+            POTENTIAL WIN: <span class="amt bn" id="potWin">৳950</span>
           </p>
           <div class="chips" id="singleChips" aria-label="Quick bet amounts"></div>
           <div class="timer-bar">
@@ -1941,15 +1938,15 @@
           </div>
           <label class="fld-label" for="tripleNum" style="text-align:center">Type 3-Digit Number (000-999)</label>
           <input id="tripleNum" class="num-input" inputmode="numeric" autocomplete="off" maxlength="3" value="" placeholder="248" />
-          <input id="tripleAmt" type="hidden" value="৫০" />
+          <input id="tripleAmt" type="hidden" value="50" />
           <div class="chips pills" id="tripleChips" aria-label="Bet amount"></div>
           <div class="win-return">
             <p class="wr-head">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5s1 2.8-.6 4.6C9.9 8.8 8.5 9.7 8.5 12a3.5 3.5 0 0 0 7 0c0-1-.5-1.7-1-2.6-.2 1-.7 1.6-1.4 2 .3-2.9-.4-6.4-1.1-7.9zM12 21.5A6.5 6.5 0 0 1 5.5 15c0-2.6 1.6-4.3 2.9-5.9C9.9 7.2 11 5.6 11 2.5c2.9 2.3 3.6 5 3.5 7 .8-.5 1.3-1.3 1.6-2.3 1.4 1.9 2.4 4.3 2.4 6.8A6.5 6.5 0 0 1 12 21.5z" /></svg>
               WINNING RETURN:
             </p>
-            <p class="wr-line bn" id="wrExact">৳৪৭,৫০০ (950x)!</p>
-            <p class="wr-line bn" id="wrBox">৳৪৫,০০০ (900x)</p>
+            <p class="wr-line bn" id="wrExact">৳47,500 (950x)!</p>
+            <p class="wr-line bn" id="wrBox">৳45,000 (900x)</p>
           </div>
           <div class="timer-bar">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
@@ -1989,7 +1986,7 @@
           <div class="agent-meta">
             <div>
               <p>Agent: <b id="agentNameLabel">—</b> (<span id="agentIdLabel">—</span>)</p><p><label class="fld-label" for="agPlayerUser" style="margin:4px 0 2px">Player username / ID (stake is taken from the player)</label><input id="agPlayerUser" class="txt-input" placeholder="Player username or ID" style="padding:8px 10px" /></p>
-              <p>Your balance: <b class="gold bn" id="agentCredit">৳০</b> <span class="muted" style="font-size:12px">(agent bets are charged to the player)</span></p>
+              <p>Your balance: <b class="gold bn" id="agentCredit">৳0</b> <span class="muted" style="font-size:12px">(agent bets are charged to the player)</span></p>
             </div>
             <div class="avatar" aria-hidden="true">S</div>
           </div>
@@ -2003,7 +2000,7 @@
               <div class="agent-pad" id="agentPad" role="group" aria-label="Agent: pick a digit"></div>
               <span class="fld-label">Bet Amount (<span class="js-curr-sym">৳</span>)</span>
               <div class="submit-row">
-                <input id="agSingleAmt" class="amt-input bn" inputmode="numeric" autocomplete="off" value="৫০০" aria-label="Agent single bet amount" />
+                <input id="agSingleAmt" class="amt-input bn" inputmode="numeric" autocomplete="off" value="500" aria-label="Agent single bet amount" />
                 <button class="btn-green" id="agSingleBtn" type="button">SUBMIT SINGLE BET</button>
               </div>
             </div>
@@ -2017,7 +2014,7 @@
               <input id="agTripleNum" class="num-input" inputmode="numeric" autocomplete="off" maxlength="3" value="" placeholder="248" aria-label="Agent triple number" />
               <span class="fld-label">Bet Amount (<span class="js-curr-sym">৳</span>)</span>
               <div class="submit-row">
-                <input id="agTripleAmt" class="amt-input bn" inputmode="numeric" autocomplete="off" value="১০০০" aria-label="Agent triple bet amount" />
+                <input id="agTripleAmt" class="amt-input bn" inputmode="numeric" autocomplete="off" value="1000" aria-label="Agent triple bet amount" />
                 <button class="btn-pink" id="agTripleBtn" type="button">SUBMIT TRIPLE BET</button>
               </div>
               <p class="return-note">Win Return: <b class="gold">950x</b></p>
@@ -2062,8 +2059,8 @@
               <div class="kpi-grid">
                 <div class="kpi"><span>Total Bets</span><b id="kpiBets">0</b></div>
                 <div class="kpi"><span>Pending Bets</span><b id="kpiPending">0</b></div>
-                <div class="kpi"><span>Total Stake</span><b class="bn" id="kpiStake">৳০</b></div>
-                <div class="kpi"><span>Total Payout</span><b class="bn" id="kpiPayout">৳০</b></div>
+                <div class="kpi"><span>Total Stake</span><b class="bn" id="kpiStake">৳0</b></div>
+                <div class="kpi"><span>Total Payout</span><b class="bn" id="kpiPayout">৳0</b></div>
               </div>
               <div class="panel" style="margin-top:12px">
                 <h3 class="section-head">
@@ -2141,7 +2138,7 @@
                 <label class="fld-label" for="cuType">Role (only roles below yours can be created)</label>
                 <select id="cuType" class="txt-input"></select>
                 <label class="fld-label" for="cuBalance">Starting Balance (<span class="js-curr-sym">৳</span>)</label>
-                <input id="cuBalance" class="txt-input bn" inputmode="numeric" autocomplete="off" value="১০০০" />
+                <input id="cuBalance" class="txt-input bn" inputmode="numeric" autocomplete="off" value="1000" />
                 <button class="btn-green wide-btn" id="cuCreate" type="button">CREATE USER</button>
               </div>
             </div>
@@ -2150,9 +2147,9 @@
             <div class="apage" id="apage-reports" hidden>
               <div class="kpi-grid">
                 <div class="kpi"><span>Bets Today</span><b id="repBets">0</b></div>
-                <div class="kpi"><span>Stake Today</span><b class="bn" id="repStake">৳০</b></div>
-                <div class="kpi"><span>Payout Today</span><b class="bn" id="repPayout">৳০</b></div>
-                <div class="kpi"><span>Net Today</span><b class="bn" id="repNet">৳০</b></div>
+                <div class="kpi"><span>Stake Today</span><b class="bn" id="repStake">৳0</b></div>
+                <div class="kpi"><span>Payout Today</span><b class="bn" id="repPayout">৳0</b></div>
+                <div class="kpi"><span>Net Today</span><b class="bn" id="repNet">৳0</b></div>
               </div>
               <div class="panel" style="margin-top:12px">
                 <h3 class="section-head">Daily Draw Report <span class="bn-sub">(আজকের বাজির হিসাব)</span></h3>
@@ -2368,7 +2365,7 @@ var API_BASE_URL = "https://lucky-low-api-production.up.railway.app";
    The check NEVER reloads the page by itself; it only shows a small
    floating pill, and only a tap on "Update" reloads (with a cache-buster).
    A failed fetch (offline, or a copy without version.json) stays silent. */
-window.APP_VERSION = "1.3.6";
+window.APP_VERSION = "1.3.7";
 var UPDATE_CHECK_MS = 5*60*1000;
 var _updateLiveVersion = null;
 var _updateDismissedFor = null;
@@ -2420,17 +2417,19 @@ function _initUpdateCheck(){
   document.addEventListener("visibilitychange",function(){ if(!document.hidden) _updateCheck(); });
 }
 _initUpdateCheck();
-var BN = "০১২৩৪৫৬৭৮৯";
-function bn(n){var s=String(n),dec="";if(s.indexOf(".")!==-1){var p=s.split(".");s=p[0];dec="."+p[1];}var neg=s.charAt(0)==="-";if(neg)s=s.slice(1);var out=s;if(s.length>3){var last=s.slice(-3),rest=s.slice(0,-3),parts=[];while(rest.length>2){parts.unshift(rest.slice(-2));rest=rest.slice(0,-2);}if(rest)parts.unshift(rest);out=parts.join(",")+","+last;}return (neg?"-":"")+(out+dec).replace(/[0-9]/g,function(d){return BN[+d];});}
-var CURR={bdt_bn:{code:"BDT",name:"Bangladesh Taka — Bangla",symbol:"৳",space:false,coin:"৳",digits:"bn"},bdt_en:{code:"BDT",name:"Bangladesh Taka — English",symbol:"৳",space:false,coin:"৳",digits:"en"},usd:{code:"USD",name:"US Dollar — English",symbol:"$",space:false,coin:"$",digits:"en"},qar:{code:"QAR",name:"Qatar Riyal",symbol:"QR",space:true,coin:"QR",digits:"en"}};
-var currency="bdt_bn";
-try{currency=localStorage.getItem("ll_currency")||"bdt_bn";}catch(e){}
-if(!CURR[currency])currency="bdt_bn";
-function cur(){return CURR[currency]||CURR.bdt_bn;}
+/* v1.3.7: Bengali-numerals mode removed — every displayed number uses
+   English digits (0-9) in every currency. No bn() conversion on display. */
+var CURR={bdt_en:{code:"BDT",name:"Bangladesh Taka — English",symbol:"৳",space:false,coin:"৳"},usd:{code:"USD",name:"US Dollar — English",symbol:"$",space:false,coin:"$"},qar:{code:"QAR",name:"Qatar Riyal",symbol:"QR",space:true,coin:"QR"}};
+var currency="bdt_en";
+try{currency=localStorage.getItem("ll_currency")||"bdt_en";}catch(e){}
+/* v1.3.7 migration: a stored pre-1.3.7 Bengali-mode value is no longer a
+   CURR key, so the fallback below maps it to bdt_en (English digits). */
+if(!CURR[currency])currency="bdt_en";
+function cur(){return CURR[currency]||CURR.bdt_en;}
 function enFmt(n){var s=String(n),dec="";if(s.indexOf(".")!==-1){var p=s.split(".");s=p[0];dec="."+p[1];}var neg=s.charAt(0)==="-";if(neg)s=s.slice(1);var out="";while(s.length>3){out=","+s.slice(-3)+out;s=s.slice(0,-3);}return (neg?"-":"")+s+out+dec;}
-function fmt(n){return cur().digits==="bn"?bn(n):enFmt(n);}
+function fmt(n){return enFmt(n); /* v1.3.7: English digits only, every currency */}
 function tk(n){var c=cur();return c.symbol+(c.space?" ":"")+fmt(n);}
-function toEn(s){return String(s).replace(/[০-৯]/g,function(d){return BN.indexOf(d);});}
+function toEn(s){return String(s).replace(/[\u09E6-\u09EF]/g,function(d){return String(d.charCodeAt(0)-0x09E6);});}
 function parseAmt(s){var v=parseInt(toEn(s).replace(/[^0-9.-]/g,""),10);return isNaN(v)?0:v;}
 function $(id){return document.getElementById(id);}
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
@@ -2922,13 +2921,13 @@ async function loadReports(){
 async function loadAudit(){
   var el=$("auditList"); if(!el)return;
   try{ var d=await api("/api/audit"); var list=unwrapList(d);
-    el.innerHTML=list.length?list.map(function(a){var t=a.created_at||a.createdAt||a.time||a.timestamp||"";var when=t?new Date(t).toLocaleString():"";var who=a.actor_name||a.actor||a.user||a.username||a.by||"—";var what=a.action||a.description||a.what||a.event||JSON.stringify(a);return '<div class="audit-row"><time>'+esc(when)+'</time><span class="who">'+esc(who)+"</span><span>"+esc(what)+"</span></div>";}).join(""):'<p class="empty">No audit entries yet.</p>';
+    el.innerHTML=list.length?list.map(function(a){var t=a.created_at||a.createdAt||a.time||a.timestamp||"";var when=t?new Date(t).toLocaleString("en-GB"):"";var who=a.actor_name||a.actor||a.user||a.username||a.by||"—";var what=a.action||a.description||a.what||a.event||JSON.stringify(a);return '<div class="audit-row"><time>'+esc(when)+'</time><span class="who">'+esc(who)+"</span><span>"+esc(what)+"</span></div>";}).join(""):'<p class="empty">No audit entries yet.</p>';
   }catch(e){ el.innerHTML='<p class="empty">No audit entries available.</p>'; }
 }
 async function loadTransactions(){
   var el=$("txTable"); if(!el)return;
   try{ var d=await api("/api/transactions"); var list=unwrapList(d);
-    el.innerHTML=list.length?list.map(function(tx){var when=tx.created_at||tx.createdAt||tx.time||"";return "<tr><td>"+esc(when?new Date(when).toLocaleString():"—")+"</td><td>"+esc(tx.username||tx.user||tx.user_id||tx.userId||"—")+"</td><td>"+esc(tx.type||tx.kind||"—")+'</td><td class="amt bn">'+tk(tx.amount||0)+"</td><td>"+esc(tx.note||tx.description||"—")+"</td></tr>";}).join(""):'<tr><td colspan="5" style="text-align:center;color:#8a6d3b">No transactions yet.</td></tr>';
+    el.innerHTML=list.length?list.map(function(tx){var when=tx.created_at||tx.createdAt||tx.time||"";return "<tr><td>"+esc(when?new Date(when).toLocaleString("en-GB"):"—")+"</td><td>"+esc(tx.username||tx.user||tx.user_id||tx.userId||"—")+"</td><td>"+esc(tx.type||tx.kind||"—")+'</td><td class="amt bn">'+tk(tx.amount||0)+"</td><td>"+esc(tx.note||tx.description||"—")+"</td></tr>";}).join(""):'<tr><td colspan="5" style="text-align:center;color:#8a6d3b">No transactions yet.</td></tr>';
   }catch(e){ el.innerHTML='<tr><td colspan="5" style="text-align:center;color:#8a6d3b">No transactions yet.</td></tr>'; }
   var adj=$("txAdjustBtn"); if(adj) adj.style.display=(currentUser&&currentUser.role==="super_admin")?"":"none";
 }
@@ -3040,8 +3039,6 @@ function wire(){
   if($("logoutBtn"))$("logoutBtn").addEventListener("click",logout);
   if($("logoutBtn2"))$("logoutBtn2").addEventListener("click",logout);
   if($("headerSignInBtn"))$("headerSignInBtn").addEventListener("click",function(){showAuth();});
-  if($("guestBackBtn"))$("guestBackBtn").addEventListener("click",function(){enterGuest();});
-  if($("saLoginLink"))$("saLoginLink").addEventListener("click",function(){setSaAuthMode(true);var li=$("loginIdentifier");if(li)li.focus();});
   ["canPlayNoteSingle","canPlayNoteTriple","canPlayNoteAgent"].forEach(function(id){var el=$(id);if(el)el.addEventListener("click",function(){if(!currentUser)showAuth();});});
   // view nav
   Array.prototype.forEach.call(document.querySelectorAll(".vnav"),function(b){b.addEventListener("click",function(){showView(b.getAttribute("data-view"));});});
