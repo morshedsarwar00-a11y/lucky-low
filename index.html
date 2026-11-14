@@ -2137,7 +2137,7 @@
                 <label class="fld-label" for="cuLogin">Email / Username</label>
                 <input id="cuLogin" class="txt-input" autocomplete="off" placeholder="email or username" />
                 <label class="fld-label" for="cuPassword">Password</label>
-                <input id="cuPassword" class="txt-input" type="password" autocomplete="new-password" placeholder="Password for the new user" />
+                <input id="cuPassword" class="txt-input" type="password" autocomplete="new-password" placeholder="Min 8 characters, 1 letter + 1 number" />
                 <label class="fld-label" for="cuType">Role (only roles below yours can be created)</label>
                 <select id="cuType" class="txt-input"></select>
                 <label class="fld-label" for="cuBalance">Starting Balance (<span class="js-curr-sym">৳</span>)</label>
@@ -2215,7 +2215,7 @@
                 <label class="fld-label" for="csUsername">Username</label><input id="csUsername" class="txt-input" autocomplete="off" placeholder="username" /><label class="fld-label" for="csLogin">Email Address</label>
                 <input id="csLogin" class="txt-input" autocomplete="off" placeholder="email or username" />
                 <label class="fld-label" for="csPass">Initial Login Password</label>
-                <input id="csPass" class="txt-input" type="password" autocomplete="new-password" placeholder="Password" />
+                <input id="csPass" class="txt-input" type="password" autocomplete="new-password" placeholder="Min 8 characters, 1 letter + 1 number" />
                 <span class="fld-label">Select Role</span>
                 <div class="opt-row" id="csRoles"></div>
                 <button class="btn-green wide-btn" id="csCreate" type="button">CREATE ACCOUNT</button>
@@ -2368,7 +2368,7 @@ var API_BASE_URL = "https://lucky-low-api-production.up.railway.app";
    The check NEVER reloads the page by itself; it only shows a small
    floating pill, and only a tap on "Update" reloads (with a cache-buster).
    A failed fetch (offline, or a copy without version.json) stays silent. */
-window.APP_VERSION = "1.3.5";
+window.APP_VERSION = "1.3.6";
 var UPDATE_CHECK_MS = 5*60*1000;
 var _updateLiveVersion = null;
 var _updateDismissedFor = null;
