@@ -176,7 +176,7 @@
       }
       .amt-input{
         width:100%; background:#080d31; border:1.5px solid #8a6d2f; border-radius:12px;
-        color:#fff; text-align:center; font-size:21px; font-weight:700; padding:11px 10px;
+        color:#fff; text-align:center; font-size:24px; font-weight:700; padding:13px 10px;
       }
       .amt-input:focus{border-color:var(--gold); outline:none}
       .num-input{
@@ -191,9 +191,9 @@
 
       .chips{display:flex; justify-content:center; gap:clamp(8px,3vw,16px); margin-top:12px; flex-wrap:wrap}
       .chip{
-        width:clamp(50px,14.5vw,60px); height:clamp(50px,14.5vw,60px); border-radius:50%;
+        width:clamp(58px,16vw,68px); height:clamp(58px,16vw,68px); border-radius:50%;
         border:4px dashed rgba(255,255,255,.9); color:#fff; font-weight:700;
-        font-size:clamp(12px,3.4vw,14px); display:grid; place-items:center;
+        font-size:clamp(13px,3.8vw,16px); display:grid; place-items:center;
         box-shadow:0 4px 12px rgba(0,0,0,.45); padding:0;
       }
       .chip.c10{background:radial-gradient(circle at 35% 30%, #565d6e, #23262f)}
@@ -427,15 +427,15 @@
       .digit{height:clamp(38px,6.8dvh,58px); font-size:clamp(20px,5.8vw,29px); border-radius:10px}
       .digit-grid{gap:clamp(6px,1.6vw,10px); max-width:290px}
       .amt-wrap{margin-top:8px}
-      .amt-input{padding:8px 10px; font-size:18px}
+      .amt-input{padding:12px 10px; font-size:24px}
       .num-input{padding:6px 10px; font-size:20px}
-      .potential{margin:4px 0 0; font-size:clamp(13px,3.9vw,16px)}
+      .potential{margin:2px 0 0; font-size:clamp(13px,3.9vw,16px)}
       .chips{gap:clamp(6px,2.4vw,12px); margin-top:5px}
-      .chip{width:clamp(44px,12.5vw,54px); height:clamp(44px,12.5vw,54px); font-size:clamp(11px,3.1vw,13px)}
+      .chip{width:clamp(56px,15.5vw,66px); height:clamp(56px,15.5vw,66px); font-size:clamp(13px,3.8vw,16px)}
       .chips.mini .chip{width:40px; height:40px}
-      .timer-bar{padding:7px 10px; margin-top:6px; font-size:13.5px}
+      .timer-bar{padding:5px 10px; margin-top:4px; font-size:13.5px}
       .btn-place,.btn-confirm{padding:10px; margin-top:6px; font-size:clamp(17px,5vw,21px)}
-      .recent{margin:5px 0 0; padding:7px; font-size:13px}
+      .recent{margin:3px 0 0; padding:5px; font-size:13px}
       .reels{margin:5px 0 2px; gap:clamp(7px,2.6vw,13px)}
       .reel{width:clamp(64px,19.5vw,84px); height:clamp(80px,15dvh,108px); border-radius:12px}
       .r-cur{font-size:clamp(32px,10.5vw,44px)}
@@ -451,7 +451,7 @@
       @media (max-height:740px){
         .digit{height:clamp(34px,6.2dvh,48px)}
         .reel{height:clamp(70px,13.5dvh,92px)}
-        .chip{width:40px; height:40px}
+        .chip{width:50px; height:50px}
         .panel{padding:9px 12px}
         .recent{display:block; margin:6px 0 0; padding:4px 8px; font-size:11.5px; line-height:1.25; white-space:nowrap; overflow:hidden}
       }
@@ -610,9 +610,9 @@
       /* triple amount chips: two wide gold pills, as in the sample */
       #tripleChips{display:flex; gap:10px; margin-top:12px; flex-wrap:nowrap}
       #tripleChips .chip{
-        flex:1; width:auto; height:44px; border-radius:12px;
+        flex:1; width:auto; height:54px; border-radius:12px;
         border:1.5px solid rgba(255,201,60,.5); background:linear-gradient(180deg,#151c5c,#0a0f38);
-        font-size:16px; box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 4px 10px rgba(0,0,0,.4);
+        font-size:19px; box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 4px 10px rgba(0,0,0,.4);
       }
       #tripleChips .chip.sel{border-color:#ffd94d; color:#ffd94d; outline:none; transform:none; box-shadow:0 0 14px rgba(255,190,40,.45), inset 0 1px 0 rgba(255,244,200,.35)}
       @media (max-height:740px){
@@ -704,10 +704,10 @@
         #game-single{grid-template-columns:minmax(150px,38%) 1fr; grid-template-rows:auto auto 30px 18px 34px 26px 32px 22px}
         #game-single .ring-wrap{grid-column:1; grid-row:3/9; padding:0}
         #game-single .amt-wrap{grid-column:2; grid-row:3; margin-top:8px}
-        #game-single .amt-input{padding:5px 10px; font-size:16px}
+        #game-single .amt-input{padding:7px 10px; font-size:20px}
         #game-single .potential{grid-column:2; grid-row:4; margin:0; font-size:13px}
         #game-single .chips{grid-column:2; grid-row:5; margin:0; justify-content:flex-start}
-        #game-single .chip{width:34px; height:34px; font-size:11px}
+        #game-single .chip{width:44px; height:44px; font-size:13px}
         #game-single .timer-bar{grid-column:2; grid-row:6; margin:0; padding:3px 10px; font-size:12.5px}
         #game-single .btn-place{grid-column:2; grid-row:7; margin:0; padding:5px; font-size:16px}
         #game-single .recent{grid-column:2; grid-row:8}
@@ -716,7 +716,7 @@
         #game-triple .reels{grid-column:1; grid-row:3/11; margin:0; align-self:center; padding:8px}
         #game-triple .reel{height:104px; width:clamp(52px,9.5vw,72px)}
         #game-triple .fld-label{grid-column:2; grid-row:3; margin:0; font-size:11.5px}
-        #game-triple .num-input{grid-column:2; grid-row:4; padding:3px 10px; font-size:18px}
+        #game-triple .num-input{grid-column:2; grid-row:4; padding:2px 10px; font-size:18px}
         #game-triple #tripleChips{grid-column:2; grid-row:5; margin:0}
         #game-triple #tripleChips .chip{height:30px}
         #game-triple .win-return{grid-column:2; grid-row:6; margin:0; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
@@ -957,10 +957,10 @@
         #game-single .ring-wrap{grid-column:1; grid-row:3/9; padding:0}
         #game-single .digit-grid{max-width:230px}
         #game-single .amt-wrap{grid-column:2; grid-row:3; margin-top:10px}
-        #game-single .amt-input{padding:7px 10px; font-size:17px}
+        #game-single .amt-input{padding:9px 10px; font-size:21px}
         #game-single .potential{grid-column:2; grid-row:4; margin:0; font-size:14px}
         #game-single .chips{grid-column:2; grid-row:5; margin:0; justify-content:flex-start}
-        #game-single .chip{width:46px; height:46px}
+        #game-single .chip{width:58px; height:58px}
         #game-single .timer-bar{grid-column:2; grid-row:6; margin:0; padding:5px 10px; font-size:13.5px}
         #game-single .btn-place{grid-column:2; grid-row:7; margin:0; padding:7px; font-size:18px}
         #game-single .recent{grid-column:2; grid-row:8}
@@ -971,13 +971,13 @@
         #game-triple .fld-label{grid-column:2; grid-row:3; margin:0; font-size:12px}
         #game-triple .num-input{grid-column:2; grid-row:4; padding:5px 10px; font-size:19px}
         #game-triple #tripleChips{grid-column:2; grid-row:5; margin:0}
-        #game-triple #tripleChips .chip{height:36px}
+        #game-triple #tripleChips .chip{height:46px}
         #game-triple .win-return{grid-column:2; grid-row:6; margin:0; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
         #game-triple .wr-head{font-size:12.5px}
         #game-triple .wr-line{display:inline; margin:0; font-size:14.5px}
         #game-triple .timer-bar{grid-column:2; grid-row:7; margin:0; padding:4px 10px; font-size:13px}
         #game-triple .row2{grid-column:2; grid-row:8; margin:0}
-        #game-triple .btn-ghost{padding:5px 6px; font-size:12.5px}
+        #game-triple .btn-ghost{padding:4px 6px; font-size:12.5px}
         #game-triple .btn-confirm{grid-column:2; grid-row:9; margin:0; padding:6px; font-size:18px}
         #game-triple .recent{grid-column:2; grid-row:10}
       }
@@ -1196,17 +1196,17 @@
       /* ---------- WIDE + SHORT (1557x652): 3-column temple stage — game | multiplier | controls ---------- */
       @media (min-width:900px) and (max-height:1080px){
         #view-player .game-panel{align-content:center}
-        #game-single{grid-template-columns:minmax(180px,30%) 104px 1fr; grid-template-rows:auto auto 44px 24px 56px 38px 84px 28px}
+        #game-single{grid-template-columns:minmax(180px,30%) 104px 1fr; grid-template-rows:auto auto 52px 22px 66px 34px 76px 26px}
         #game-single .mult-col{grid-column:2; grid-row:3/9; margin:0; flex-direction:column; gap:8px; padding:8px 4px}
         #game-single .medals{flex-direction:column}
         #game-single .amt-wrap{grid-column:3; grid-row:3; margin-top:10px}
         #game-single .potential{grid-column:3; grid-row:4; margin:0}
         #game-single .chips{grid-column:3; grid-row:5; margin:0; justify-content:flex-start}
         #game-single .timer-bar{grid-column:3; grid-row:6; margin:0}
-        #game-single .btn-place{grid-column:3; grid-row:7; margin:0; width:80px; height:80px; font-size:12px; border-width:3px}
+        #game-single .btn-place{grid-column:3; grid-row:7; margin:0; width:72px; height:72px; font-size:12px; border-width:3px}
         #game-single .btn-place::before{width:24px; height:24px}
         #game-single .recent{grid-column:3; grid-row:8}
-        #game-triple{grid-template-columns:minmax(230px,36%) 104px 1fr; grid-template-rows:auto auto 14px 38px 44px 24px 34px 36px 84px 26px}
+        #game-triple{grid-template-columns:minmax(230px,36%) 104px 1fr; grid-template-rows:auto auto 14px 38px 52px 22px 30px 32px 76px 24px}
         #game-triple .reels{grid-column:1; grid-row:3/11}
         #game-triple .reel{height:210px}
         #game-triple .mult-col{grid-column:2; grid-row:3/11; margin:0; flex-direction:column; gap:8px; padding:8px 4px}
@@ -1218,7 +1218,7 @@
         #game-triple .win-return{grid-column:3; grid-row:6; margin:0; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
         #game-triple .timer-bar{grid-column:3; grid-row:7; margin:0}
         #game-triple .row2{grid-column:3; grid-row:8; margin:0}
-        #game-triple .btn-confirm{grid-column:3; grid-row:9; margin:0; width:80px; height:80px; font-size:12px; border-width:3px}
+        #game-triple .btn-confirm{grid-column:3; grid-row:9; margin:0; width:72px; height:72px; font-size:12px; border-width:3px}
         #game-triple .btn-confirm::before{width:24px; height:24px}
         #game-triple .recent{grid-column:3; grid-row:10}
       }
@@ -1237,7 +1237,7 @@
         #game-single .potential{grid-column:3; grid-row:4}
         #game-single .chips{grid-column:3; grid-row:5}
         #game-single .timer-bar{grid-column:3; grid-row:6}
-        #game-single .btn-place{grid-column:3; grid-row:7; margin:0; width:100%; height:36px; border-radius:999px; flex-direction:row; gap:7px; font-size:13px; border-width:2.5px; padding:4px 10px}
+        #game-single .btn-place{grid-column:3; grid-row:7; margin:0; width:100%; height:40px; border-radius:999px; flex-direction:row; gap:7px; font-size:14px; border-width:2.5px; padding:5px 10px}
         #game-single .btn-place::before{width:17px; height:17px}
         #game-single .recent{grid-column:3; grid-row:8}
         #game-triple{grid-template-columns:minmax(170px,38%) 60px 1fr}
@@ -1263,14 +1263,14 @@
          Targets: 1557x652 and 1920x1000 — no page scroll, no half-cut cards, no dead gaps. */
       /* Player: POTENTIAL WIN / WINNING RETURN rows size to content — never covered by the chips row */
       @media (min-width:900px){
-        #game-single{grid-template-rows:auto auto 44px auto 56px 38px 84px 28px}
-        #game-triple{grid-template-rows:auto auto 14px 38px 44px auto 34px 36px 84px 26px}
+        #game-single{grid-template-rows:auto auto 52px auto 66px 34px 76px 24px}
+        #game-triple{grid-template-rows:auto auto 14px 38px 52px auto 30px 32px 76px 24px}
         #view-player .potential{flex-wrap:nowrap}
         #view-player .digit-grid{max-height:380px}
       }
       @media (max-height:540px) and (min-width:520px){
-        #game-single{grid-template-rows:auto auto 32px auto 36px 28px 38px 24px}
-        #game-triple{grid-template-rows:auto auto 12px 26px 30px auto 22px 24px 36px 20px}
+        #game-single{grid-template-rows:auto auto 40px auto 48px 26px 40px 22px}
+        #game-triple{grid-template-rows:auto auto 12px 30px 40px auto 20px 22px 34px 18px}
         #view-player .potential{flex-wrap:nowrap}
         #game-single .medallion small,#game-triple .medallion small{display:none}
       }
@@ -1416,9 +1416,11 @@
       @media (max-height:540px) and (min-width:520px){
         #game-single{grid-template-rows:auto auto auto auto auto auto auto auto; row-gap:6px}
         #view-player #game-triple{grid-template-rows:auto auto auto auto auto auto auto auto auto auto; row-gap:2px}
-        #game-single .chip{width:36px; height:36px; font-size:11px; border-width:3px}
+        #game-single .chip{width:44px; height:44px; font-size:13px; border-width:3px}
         #game-single .amt-input{padding:4px 10px}
         #game-single .potential{font-size:12.5px}
+        #view-player .canplay-note .en{display:none}
+        #view-player .canplay-note{margin:4px 0 0; padding:5px 8px}
         #game-triple .fld-label{line-height:1.3}
         #game-triple #tripleChips .chip{height:30px}
         #game-triple .btn-confirm{height:32px}
@@ -1437,17 +1439,18 @@
          is now a roomy 5 x 2 grid sized by its own tiles, the ring-wrap takes its natural height, and
          the banner sits in its own row underneath the board — overlap is structurally impossible. */
       @media (max-width:700px) and (orientation:portrait){
-        #view-player .ring-wrap{flex:none; min-height:0; display:block; padding:12px 2px 8px}
+        #view-player .ring-wrap{flex:none; min-height:0; display:block; padding:8px 2px 4px}
         #view-player .digit-grid{
-          height:auto; max-height:none; width:100%; max-width:320px; aspect-ratio:auto;
+          height:auto; max-height:none; width:100%; max-width:300px; aspect-ratio:auto;
           grid-template-columns:repeat(5,1fr); grid-template-rows:none;
           gap:clamp(8px,2.4vw,11px); margin:0 auto;
         }
         #view-player .digit{height:auto; aspect-ratio:1.06; font-size:clamp(26px,7.8vw,34px); border-radius:13px}
         #view-player .digit[data-d="9"]{grid-column:auto}
+        #view-player .chips{gap:6px}
         #view-player .ring{width:min(372px,99%); height:calc(100% - 8px)}
         #view-player .mult-col{margin-top:10px}
-        #view-player .medallion{width:48px; height:48px}
+        #view-player .medallion{width:44px; height:44px}
         #view-player .medallion small{font-size:5.3px}
         #view-player .btn-place,#view-player .btn-confirm{width:88px; height:88px}
       }
@@ -1455,30 +1458,30 @@
          "Sign in to play" note and Recent Winners all fit one screen —
          slightly smaller disc, one-line note (the English repeat is dropped here) */
       @media (max-width:700px) and (orientation:portrait) and (max-height:850px){
-        #view-player .game-panel{padding:6px 10px 8px}
-        #game-single .mult-col{margin-top:7px}
+        #view-player .game-panel{padding:6px 10px 6px}
+        #game-single .mult-col{margin-top:5px}
         #view-player .digit-grid{gap:6px}
-        #view-player .btn-place{width:76px; height:76px}
+        #view-player .btn-place{width:70px; height:70px}
         #view-player .canplay-note .en{display:none}
-        #view-player .canplay-note{margin:3px 0 0; padding:4px 8px}
+        #view-player .canplay-note{margin:2px 0 0; padding:3px 8px}
       }
       /* short portrait phones: same board, tighter rhythm so the whole game still fits one screen */
       @media (max-width:700px) and (orientation:portrait) and (max-height:760px){
         #view-player .game-title{font-size:17px}
-        #view-player .ring-wrap{padding:4px 2px 2px}
-        #view-player .digit-grid{gap:8px}
-        #view-player .mult-col{margin-top:7px; padding:4px 10px}
-        #view-player .medallion{width:40px; height:40px}
+        #view-player .ring-wrap{padding:2px 2px 1px}
+        #view-player .digit-grid{gap:6px}
+        #view-player .mult-col{margin-top:5px; padding:3px 10px}
+        #view-player .medallion{width:36px; height:36px}
         #view-player .medallion b{font-size:14.5px}
         #view-player .medallion small{font-size:4.9px}
         #view-player .amt-wrap{margin-top:9px}
-        #view-player .amt-input{padding:4px 10px}
+        #view-player .amt-input{padding:8px 10px}
         #view-player .potential{margin:4px 0 0; font-size:13px}
         #view-player .chips{margin-top:4px}
-        #singleChips .chip{width:40px; height:40px}
-        #view-player .timer-bar{margin-top:6px; padding:5px 10px}
-        #view-player .btn-place,#view-player .btn-confirm{width:70px; height:70px; margin-top:6px; font-size:13px}
-        #view-player .recent{margin-top:5px; padding:4px 8px; font-size:12px}
+        #singleChips .chip{width:50px; height:50px}
+        #view-player .timer-bar{margin-top:4px; padding:4px 10px}
+        #view-player .btn-place,#view-player .btn-confirm{width:64px; height:64px; margin-top:4px; font-size:13px}
+        #view-player .recent{margin-top:4px; padding:3px 8px; font-size:12px}
       }
       /* very short portrait phones (in-app webviews ~600px tall): same roomy board, compact chrome,
          so PLACE BET and the Recent Winners line still fit on the one screen */
@@ -1500,14 +1503,14 @@
         #view-player .medallion svg{width:11px; height:11px}
         #view-player .medallion b{font-size:13px}
         #view-player .amt-wrap{margin-top:9px}
-        #view-player .amt-input{padding:3px 10px; font-size:16px}
+        #view-player .amt-input{padding:6px 10px; font-size:20px}
         #view-player .potential{margin:4px 0 0; font-size:12px}
         #view-player .chips{margin-top:3px}
-        #singleChips .chip{width:38px; height:38px; font-size:10.5px}
+        #singleChips .chip{width:46px; height:46px; font-size:12px}
         #view-player .timer-bar{margin-top:6px; padding:4px 10px; font-size:12.5px}
-        #view-player .btn-place,#view-player .btn-confirm{width:68px; height:68px; margin-top:6px; font-size:11.5px; border-width:3px}
+        #view-player .btn-place,#view-player .btn-confirm{width:62px; height:62px; margin-top:4px; font-size:11.5px; border-width:3px}
         #view-player .btn-place::before,#view-player .btn-confirm::before{width:20px; height:20px}
-        #view-player .recent{margin-top:5px; padding:3px 8px; font-size:11px}
+        #view-player .recent{margin-top:4px; padding:2px 8px; font-size:11px}
       }
 
       /* ---------- TRIPLE NUMBER ON PORTRAIT PHONES: the whole 3D panel on one screen ----------
@@ -1524,37 +1527,37 @@
         #view-player #game-triple .reel{height:clamp(56px,9.5dvh,84px)}
         #game-triple .mult-col{margin-top:5px; padding:6px 10px}
         #game-triple .medallion{width:42px; height:42px}
-        #game-triple .fld-label{margin:4px 0 2px}
+        #game-triple .fld-label{margin:3px 0 1px}
         #game-triple .num-input{padding:7px 10px}
-        #game-triple #tripleChips{margin-top:9px}
-        #game-triple #tripleChips .chip{height:38px}
-        #game-triple .win-return{margin-top:5px; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:1px 10px}
+        #game-triple #tripleChips{margin-top:7px}
+        #game-triple #tripleChips .chip{height:48px}
+        #game-triple .win-return{margin-top:3px; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:1px 10px}
         #game-triple .wr-head{margin:0}
         #game-triple .wr-line{margin:0; font-size:14px}
-        #game-triple .timer-bar{margin-top:4px}
+        #game-triple .timer-bar{margin-top:2px}
         #game-triple .row2{margin-top:3px}
         #game-triple .btn-ghost{padding:5px 6px}
-        #view-player #game-triple .btn-confirm{width:84px; height:84px; margin-top:6px}
-        #game-triple .recent{margin-top:6px; padding:5px 8px; font-size:12.5px}
+        #view-player #game-triple .btn-confirm{width:78px; height:78px; margin-top:4px}
+        #game-triple .recent{margin-top:4px; padding:4px 8px; font-size:12.5px}
       }
       /* triple on portrait phones ≤850px tall: same idea — smaller disc and
          reels so CONFIRM BET, the note and the history line fit one screen */
       @media (max-width:700px) and (orientation:portrait) and (max-height:850px){
-        #view-player #game-triple .btn-confirm{width:64px; height:64px}
-        #view-player #game-triple .reel{height:58px}
-        #view-player #game-triple #tripleChips .chip{height:30px}
+        #view-player #game-triple .btn-confirm{width:58px; height:58px}
+        #view-player #game-triple .reel{height:52px}
+        #view-player #game-triple #tripleChips .chip{height:40px}
       }
       @media (max-width:700px) and (orientation:portrait) and (max-height:760px){
         #game-triple .reels{padding:3px 7px}
-        #view-player #game-triple .reel{height:clamp(46px,7dvh,60px)}
+        #view-player #game-triple .reel{height:clamp(42px,6.5dvh,54px)}
         #game-triple .medallion{width:34px; height:34px}
-        #game-triple .num-input{padding:3px 10px; font-size:17px}
+        #game-triple .num-input{padding:2px 10px; font-size:17px}
         #game-triple #tripleChips{margin-top:4px}
-        #game-triple #tripleChips .chip{height:30px; font-size:14.5px}
-        #game-triple .win-return{margin-top:3px}
+        #game-triple #tripleChips .chip{height:38px; font-size:16px}
+        #game-triple .win-return{margin-top:2px}
         #game-triple .wr-line{font-size:13px}
-        #view-player #game-triple .btn-confirm{width:48px; height:48px}
-        #game-triple .recent{margin-top:3px}
+        #view-player #game-triple .btn-confirm{width:44px; height:44px}
+        #game-triple .recent{margin-top:2px}
       }
       @media (max-width:700px) and (orientation:portrait) and (max-height:700px){
         #game-triple .game-title svg{width:20px; height:20px}
@@ -1564,9 +1567,9 @@
         #game-triple .medallion b{font-size:13.5px}
         #game-triple .medallion svg{width:11px; height:11px}
         #game-triple .r-prev,#game-triple .r-next{font-size:14px}
-        #game-triple .num-input{padding:3px 10px; font-size:17px}
-        #game-triple #tripleChips .chip{height:30px}
-        #view-player #game-triple .btn-confirm{width:68px; height:68px; margin-top:6px; font-size:11.5px}
+        #game-triple .num-input{padding:2px 10px; font-size:17px}
+        #game-triple #tripleChips .chip{height:36px}
+        #view-player #game-triple .btn-confirm{width:62px; height:62px; margin-top:4px; font-size:11.5px}
         #game-triple .btn-confirm::before{width:20px; height:20px}
       }
       /* very short portrait phones / in-app webviews (~640px tall and under) */
@@ -1576,8 +1579,8 @@
         #game-triple .medallion{width:36px; height:36px}
         #game-triple .medallion b{font-size:12.5px}
         #game-triple .medallion svg{width:10px; height:10px}
-        #game-triple #tripleChips .chip{height:27px}
-        #view-player #game-triple .btn-confirm{width:58px; height:58px; font-size:9.5px; letter-spacing:.5px}
+        #game-triple #tripleChips .chip{height:32px}
+        #view-player #game-triple .btn-confirm{width:54px; height:54px; font-size:9.5px; letter-spacing:.5px}
         #game-triple .btn-confirm::before{width:16px; height:16px}
       }
 
@@ -1626,29 +1629,29 @@
             big save button, tall cards). They are now compact — smaller pills, tighter cards —
             so all four roles + save fit in far less space. */
       #tripleChips{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; flex-wrap:wrap}
-      #tripleChips .chip{width:100%; min-width:0; padding:0 4px; font-size:13px}
+      #tripleChips .chip{width:100%; min-width:0; padding:0 4px; font-size:15px}
       #tripleChips .chip .bn{overflow:visible}
       #tripleChips .chip.c1000 .bn{font-size:.84em; letter-spacing:-.3px}
-      #tripleChips .chip-manual{width:100%; min-width:0; height:44px; font-size:12.5px; letter-spacing:.2px; padding:0 4px}
+      #tripleChips .chip-manual{width:100%; min-width:0; height:54px; font-size:14px; letter-spacing:.2px; padding:0 4px}
       @media (min-width:900px) and (max-height:1080px){
-        #game-triple #tripleChips .chip-manual{height:40px}
+        #game-triple #tripleChips .chip-manual{height:48px}
       }
       @media (max-height:540px) and (min-width:520px){
         #game-triple #tripleChips{gap:5px}
-        #game-triple #tripleChips .chip{height:24px; font-size:11.5px}
-        #game-triple #tripleChips .chip-manual{height:24px; font-size:11px}
+        #game-triple #tripleChips .chip{height:34px; font-size:14px}
+        #game-triple #tripleChips .chip-manual{height:34px; font-size:12px}
       }
       @media (max-width:700px) and (orientation:portrait){
-        #game-triple #tripleChips .chip-manual{height:38px}
+        #game-triple #tripleChips .chip-manual{height:48px}
       }
       @media (max-width:700px) and (orientation:portrait) and (max-height:760px){
-        #game-triple #tripleChips .chip-manual{height:34px}
+        #game-triple #tripleChips .chip-manual{height:42px}
       }
       @media (max-width:700px) and (orientation:portrait) and (max-height:700px){
-        #game-triple #tripleChips .chip-manual{height:30px}
+        #game-triple #tripleChips .chip-manual{height:36px}
       }
       @media (max-width:700px) and (orientation:portrait) and (max-height:640px){
-        #game-triple #tripleChips .chip-manual{height:27px; font-size:11px}
+        #game-triple #tripleChips .chip-manual{height:32px; font-size:11px}
       }
       /* SA mode on portrait phones: the currency bar + the two-row chips would push CONFIRM BET
          and the history line past the one-screen panel — so in SA mode the currency bar and the
