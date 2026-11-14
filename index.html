@@ -642,6 +642,17 @@
       .perm-row{display:flex; align-items:center; gap:10px; background:#0a0f38; border:1px solid var(--line); border-radius:11px; padding:9px 12px; margin-top:7px; font-size:14px}
       .perm-row .dot{flex:none}
       .perm-row small{display:block; color:var(--muted); font-size:12px}
+      .perm-row input[type="checkbox"]{width:19px; height:19px; flex:none; accent-color:#7b21b6; cursor:pointer; margin:0}
+      .perm-row input[type="checkbox"]:disabled{cursor:not-allowed; opacity:.55}
+      label.perm-row{cursor:pointer}
+      label.perm-row:has(input:disabled){cursor:not-allowed}
+      /* Role-details permission list: single column on phones, two columns
+         on desktop so all 11 checkboxes + SAVE fit one screen (2026-11-14) */
+      #rdPerms{display:flex; flex-direction:column}
+      @media (min-width:900px){
+        #rdPerms{display:grid; grid-template-columns:1fr 1fr; gap:0 10px}
+        #rdPerms .btn-green,#rdPerms .muted{grid-column:1/-1}
+      }
       .perm-row .st{margin-left:auto}
       .assign-row{border:1px solid var(--line); border-radius:12px; padding:11px 12px; margin-top:10px; background:#0a0f38}
       .assign-row b{font-size:15px}
@@ -1368,7 +1379,16 @@
         /* user role system: roles table left, assign cards right — pills and SAVE ROLES all visible */
         #rolesMain{flex:1 1 auto; min-height:0; display:grid; grid-template-columns:1fr 1.12fr; gap:12px}
         #rolesMain .panel{margin-top:0; height:100%; min-height:0; overflow:hidden}
-        #roleDetails{flex:1 1 auto; min-height:0}
+        #roleDetails{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+        #roleDetails .panel{flex:1 1 auto; min-height:0; overflow-y:auto}
+        /* role details: compact one-line checkbox rows (key hidden here,
+           label + ALLOWED/OFF badge only) so all 11 + SAVE fit one screen */
+        #rdPerms .perm-row{margin-top:5px; padding:5px 10px; font-size:13px}
+        #rdPerms .perm-row small{display:none}
+        #rdPerms .btn-green{margin-top:8px; padding:9px 16px}
+        #roleBack{margin-bottom:6px !important}
+        #roleDetails .section-head{margin-bottom:2px}
+        #roleDetails #rdNote{margin-bottom:4px !important}
         .assign-row{padding:7px 10px; margin-top:7px}
         .assign-row .row2{margin-top:6px}
         .assign-row .btn-green{padding:7px 12px}
@@ -2365,7 +2385,7 @@ var API_BASE_URL = "https://lucky-low-api-production.up.railway.app";
    The check NEVER reloads the page by itself; it only shows a small
    floating pill, and only a tap on "Update" reloads (with a cache-buster).
    A failed fetch (offline, or a copy without version.json) stays silent. */
-window.APP_VERSION = "1.3.7";
+window.APP_VERSION = "1.3.8";
 var UPDATE_CHECK_MS = 5*60*1000;
 var _updateLiveVersion = null;
 var _updateDismissedFor = null;
@@ -2526,6 +2546,27 @@ function updateAmountUI(){
    User creates nothing. */
 var ROLE_ORDER=["super_admin","agent","user"];
 var ROLE_LABEL={super_admin:"Super Admin",agent:"Agent",user:"User"};
+/* All 11 permissions (2026-11-14, mirrors backend src/common/constants/roles.ts:
+   ALL_PERMISSIONS + PERMISSION_LABELS). Do NOT add or remove any here — the
+   set is fixed; only Super Admin assigns them, via PUT /api/permissions/:role. */
+var ALL_PERMISSIONS=[
+  {key:"view_dashboard",label:"View Dashboard"},
+  {key:"create_users",label:"Create Users"},
+  {key:"modify_app_settings",label:"Modify App Settings (Logo, Name, Theme)"},
+  {key:"set_draw_time",label:"Set Draw Time"},
+  {key:"toggle_auto_manual_draw",label:"Toggle Auto/Manual Draw"},
+  {key:"edit_transactions",label:"Edit Transactions"},
+  {key:"view_daily_draw_report",label:"View Daily Draw Report"},
+  {key:"set_amount_limits",label:"Set Amount Limits"},
+  {key:"declare_winner",label:"Declare Winner (Risk Analysis)"},
+  {key:"manage_roles",label:"Manage Roles & Permissions"},
+  {key:"place_agent_bets",label:"Place Bets for Players (Agent Panel)"}];
+/* Fallback permission set per role (backend DEFAULT_PERMISSIONS) — used only
+   if GET /api/permissions returns nothing usable. Super Admin: all 11. */
+var DEFAULT_ROLE_PERMS={
+  super_admin:ALL_PERMISSIONS.map(function(p){return p.key;}),
+  agent:["view_dashboard","view_daily_draw_report","place_agent_bets"],
+  user:[]}; 
 function rolesBelow(role){var i=ROLE_ORDER.indexOf(role);if(i===-1)return ["user"];return ROLE_ORDER.slice(i+1);}
 function unwrapList(d){if(!d)return[];if(Array.isArray(d))return d;return d.items||d.users||d.data||d.results||d.rows||[];}
 function unwrapObj(d){if(!d)return null;return d.user||d.data||d.draw||d.settings||d;}
@@ -2834,7 +2875,7 @@ async function loadUsers(){
     // populate create user + staff selects
     var cu=$("cuType"); if(cu){cu.innerHTML=creatableRoles.map(function(r){return '<option value="'+r+'">'+esc(ROLE_LABEL[r]||r)+"</option>";}).join("");}
     var cs=$("csRoles"); if(cs){cs.innerHTML=creatableRoles.map(function(r,i){return '<button type="button" class="opt-btn'+(i===0?" sel":"")+'" data-role="'+r+'">'+esc(ROLE_LABEL[r]||r)+"</button>";}).join(""); Array.prototype.forEach.call(cs.children,function(b){b.addEventListener("click",function(){Array.prototype.forEach.call(cs.children,function(x){x.classList.remove("sel");});b.classList.add("sel");});});}
-    if($("usersTable"))$("usersTable").innerHTML=allUsers.length?allUsers.map(function(u){u=normUser(u);var isSAUser=currentUser&&currentUser.role==="super_admin";var nm=u.fullName||u.name||u.username||"—";var st=u.status||"active";var delBtn=currentUser&&currentUser.role==="super_admin"?'<button type="button" class="mini-btn" data-deluser="'+esc(u.id)+'">DELETE</button>':"";var statusBtn=isSAUser?'<button type="button" class="mini-btn" data-statususer="'+esc(u.id)+'" data-cur="'+esc(st)+'">'+(st==="active"?"SUSPEND":"ACTIVATE")+"</button>":'<span class="muted" style="font-size:11px">Super Admin only</span>';var cpOn=u.can_play===true;var cpBtn=currentUser&&currentUser.role==="super_admin"?'<button type="button" class="mini-btn'+(cpOn?" cp-on":"")+'" data-canplay="'+esc(u.id)+'" data-cur="'+(cpOn?"1":"0")+'">'+(cpOn?"CAN PLAY: ON":"CAN PLAY: OFF")+"</button>":'<span class="st '+(cpOn?"st-won":"st-lost")+'">'+(cpOn?"ON":"OFF")+"</span>";return "<tr><td>"+esc(nm)+"</td><td>"+esc(u.email||u.username||u.id||"")+"</td><td>"+esc(ROLE_LABEL[u.role]||u.role||"")+'</td><td class="amt bn">'+tk((u.balance_coins!=null?u.balance_coins:u.balance)||0)+'</td><td><span class="st '+(st==="active"?"st-won":"st-lost")+'">'+esc(String(st).toUpperCase())+'</span></td><td>'+cpBtn+"</td><td>"+statusBtn+" "+delBtn+"</td></tr>";}).join(""):'<tr><td colspan="7" style="text-align:center;color:#8a6d3b">No users yet.</td></tr>';
+    if($("usersTable"))$("usersTable").innerHTML=allUsers.length?allUsers.map(function(u){u=normUser(u);var isSAUser=currentUser&&currentUser.role==="super_admin";var nm=u.fullName||u.name||u.username||"—";var st=u.status||"active";var delBtn=currentUser&&currentUser.role==="super_admin"?'<button type="button" class="mini-btn" data-deluser="'+esc(u.id)+'">DELETE</button>':"";var statusBtn=isSAUser?'<button type="button" class="mini-btn" data-statususer="'+esc(u.id)+'" data-cur="'+esc(st)+'">'+(st==="active"?"BLOCK":st==="pending"?"APPROVE":"UNBLOCK")+"</button>":'<span class="muted" style="font-size:11px">Super Admin only</span>';var cpOn=u.can_play===true;var cpBtn=currentUser&&currentUser.role==="super_admin"?'<button type="button" class="mini-btn'+(cpOn?" cp-on":"")+'" data-canplay="'+esc(u.id)+'" data-cur="'+(cpOn?"1":"0")+'">'+(cpOn?"CAN PLAY: ON":"CAN PLAY: OFF")+"</button>":'<span class="st '+(cpOn?"st-won":"st-lost")+'">'+(cpOn?"ON":"OFF")+"</span>";return "<tr><td>"+esc(nm)+"</td><td>"+esc(u.email||u.username||u.id||"")+"</td><td>"+esc(ROLE_LABEL[u.role]||u.role||"")+'</td><td class="amt bn">'+tk((u.balance_coins!=null?u.balance_coins:u.balance)||0)+'</td><td><span class="st '+(st==="active"?"st-won":"st-lost")+'">'+esc(String(st).toUpperCase())+'</span></td><td>'+cpBtn+"</td><td>"+statusBtn+" "+delBtn+"</td></tr>";}).join(""):'<tr><td colspan="7" style="text-align:center;color:#8a6d3b">No users yet.</td></tr>';
     Array.prototype.forEach.call(document.querySelectorAll("[data-deluser]"),function(b){b.addEventListener("click",async function(){try{await api("/api/users/"+b.getAttribute("data-deluser"),{method:"DELETE"});toast("User deleted");loadUsers();}catch(e){toast(errMsg(e));}});});
     Array.prototype.forEach.call(document.querySelectorAll("[data-statususer]"),function(b){b.addEventListener("click",async function(){var curSt=b.getAttribute("data-cur");var ns=curSt==="active"?"inactive":"active";try{await api("/api/users/"+b.getAttribute("data-statususer")+"/status",{method:"PATCH",body:{status:ns}});toast("Status updated");loadUsers();}catch(e){toast(errMsg(e));}});});
     Array.prototype.forEach.call(document.querySelectorAll("[data-canplay]"),function(b){b.addEventListener("click",async function(){var nv=b.getAttribute("data-cur")!=="1";try{await api("/api/users/"+b.getAttribute("data-canplay")+"/can-play",{method:"PATCH",body:{canPlay:nv}});toast(nv?"Can Play enabled":"Can Play disabled");loadUsers();}catch(e){toast(errMsg(e));}});});
@@ -2864,7 +2905,8 @@ async function loadRolesAndPerms(){
   allRoles=roleNames;
   if($("rolesTable")){
     // For each role, try count via users list
-    $("rolesTable").innerHTML=roleNames.map(function(rn){var cnt=allUsers.filter(function(u){return u.role===rn;}).length;var permCount="—"; // permissions count if available
+    $("rolesTable").innerHTML=roleNames.map(function(rn){var cnt=allUsers.filter(function(u){return u.role===rn;}).length;var permCount="—"; // permissions count from GET /api/permissions (roles[].permissions)
+      if(permsData&&Array.isArray(permsData.roles)){var _re=permsData.roles.find(function(x){return (x.role||x.name)===rn;});if(_re&&Array.isArray(_re.permissions))permCount=_re.permissions.length+" / "+ALL_PERMISSIONS.length;}
       return "<tr><td><b>"+esc(ROLE_LABEL[rn]||rn)+"</b></td><td>"+permCount+"</td><td>"+cnt+"</td><td>"+(rn==="super_admin"?"Protected":"Custom")+'</td><td><button type="button" class="mini-btn" data-roleview="'+esc(rn)+'">VIEW</button></td></tr>';}).join("");
     Array.prototype.forEach.call($("rolesTable").querySelectorAll("[data-roleview]"),function(b){b.addEventListener("click",function(){openRoleDetails(b.getAttribute("data-roleview"),permsData);});});
   }
@@ -2872,27 +2914,47 @@ async function loadRolesAndPerms(){
 }
 async function openRoleDetails(rn,permsData){
   if($("rdName"))$("rdName").textContent=ROLE_LABEL[rn]||rn;
-  if($("rdNote"))$("rdNote").textContent=rn==="super_admin"?"This role is protected — it always keeps full access.":"Permissions for this role are shown below.";
-  var perms=[];
+  if($("rdNote"))$("rdNote").textContent=rn==="super_admin"?"This role is protected — it always keeps full access.":"Tick the permissions this role should have, then save.";
   try{ var d=await api("/api/roles/"+encodeURIComponent(rn)+"/users"); var us=unwrapList(d); /* users in role shown as note */ if($("rdNote"))$("rdNote").textContent+=(us.length?" · "+us.length+" user(s) in this role.":" · No users in this role yet."); }catch(e){}
   try{ if(!permsData) permsData=await api("/api/permissions"); }catch(e){}
+  // Checkbox permission editor (2026-11-14): one checkbox per permission.
+  // Backend contract — GET /api/permissions returns
+  //   {permissions:[{key,label} x11], roles:[{role,permissions,locked}]}
+  // and PUT /api/permissions/:role takes body {permissions:[keys]}.
+  // Older shapes are tolerated; if the server returns nothing usable the
+  // hardcoded ALL_PERMISSIONS catalog + DEFAULT_ROLE_PERMS are used.
+  var catalog=ALL_PERMISSIONS.slice(), rolePerms=null;
   if(permsData){
-    var entry=null;
-    if(Array.isArray(permsData)) entry=permsData.find(function(x){return x.role===rn||x.name===rn;});
-    else if(permsData[rn]) entry=permsData[rn];
-    else if(permsData.permissions) entry=permsData;
-    if(entry){ var list=entry.permissions||entry.perms||entry; if(Array.isArray(list)) perms=list; }
+    if(Array.isArray(permsData.permissions)&&permsData.permissions.length){
+      catalog=permsData.permissions.map(function(p){return typeof p==="string"?{key:p,label:p}:{key:p.key||p.name||"",label:p.label||p.name||p.key||""};}).filter(function(p){return p.key;});
+      if(!catalog.length)catalog=ALL_PERMISSIONS.slice();
+    }
+    if(Array.isArray(permsData.roles)){
+      var _re=permsData.roles.find(function(x){return (x.role||x.name)===rn;});
+      if(_re&&Array.isArray(_re.permissions))rolePerms=_re.permissions.map(function(p){return typeof p==="string"?p:(p.key||p.name);}).filter(Boolean);
+    }else if(Array.isArray(permsData)){
+      var _en=permsData.find(function(x){return x.role===rn||x.name===rn;});
+      if(_en&&Array.isArray(_en.permissions))rolePerms=_en.permissions.map(function(p){return typeof p==="string"?p:(p.key||p.name);}).filter(Boolean);
+    }else if(permsData[rn]&&Array.isArray(permsData[rn].permissions)){
+      rolePerms=permsData[rn].permissions.slice();
+    }
   }
-  if($("rdPerms"))$("rdPerms").innerHTML=perms.length?perms.map(function(pr){var label=typeof pr==="string"?pr:(pr.label||pr.name||pr.key||pr);var key=typeof pr==="string"?pr:(pr.key||pr.name||"");return '<div class="perm-row"><span class="dot"></span><span>'+esc(label)+"<small>"+esc(key)+'</small></span><span class="st st-won">ALLOWED</span></div>';}).join(""):'<p class="empty">No permission details returned by the server for this role.</p>';
+  if(!rolePerms)rolePerms=DEFAULT_ROLE_PERMS[rn]?DEFAULT_ROLE_PERMS[rn].slice():[];
+  var isSA=currentUser&&currentUser.role==="super_admin";
+  var editable=isSA&&rn!=="super_admin"; // Super Admin keeps all 11, not editable here
+  if($("rdPerms"))$("rdPerms").innerHTML=catalog.length?catalog.map(function(pr){var on=rolePerms.indexOf(pr.key)!==-1;return '<label class="perm-row"><input type="checkbox" data-permkey="'+esc(pr.key)+'"'+(on?" checked":"")+(editable?"":" disabled")+' /><span>'+esc(pr.label)+"<small>"+esc(pr.key)+"</small></span>"+(on?'<span class="st st-won">ALLOWED</span>':'<span class="st st-pending">OFF</span>')+"</label>";}).join(""):'<p class="empty">No permission details returned by the server for this role.</p>';
   if($("rolesMain"))$("rolesMain").hidden=true; if($("roleDetails"))$("roleDetails").hidden=false;
-  // Permissions editing (Super Admin only, 2026-11-13): PUT /api/permissions/:role
+  // Permissions editing (Super Admin only): PUT /api/permissions/:role
   var rd=$("rdPerms");
-  if(rd && currentUser&&currentUser.role==="super_admin"){
+  if(rd&&editable){
     var sb=document.createElement("button"); sb.type="button"; sb.className="btn-green wide-btn"; sb.textContent="SAVE PERMISSIONS";
-    sb.addEventListener("click",async function(){ try{ await api("/api/permissions/"+encodeURIComponent(rn),{method:"PUT",body:{permissions:perms}}); toast("Permissions saved"); }catch(e){ toast(errMsg(e)); } });
+    sb.addEventListener("click",async function(){
+      var checked=[]; Array.prototype.forEach.call(rd.querySelectorAll('input[type="checkbox"]:checked'),function(c){checked.push(c.getAttribute("data-permkey"));});
+      try{ await api("/api/permissions/"+encodeURIComponent(rn),{method:"PUT",body:{permissions:checked}}); toast("Permissions saved"); loadRolesAndPerms(); }catch(e){ toast(errMsg(e)); }
+    });
     rd.appendChild(sb);
   }else if(rd){
-    var nm=document.createElement("p"); nm.className="muted"; nm.style.fontSize="12px"; nm.textContent="Super Admin only — permissions can only be changed by a Super Admin.";
+    var nm=document.createElement("p"); nm.className="muted"; nm.style.fontSize="12px"; nm.textContent=rn==="super_admin"?"Super Admin always keeps full access — its permissions cannot be changed.":"Super Admin only — permissions can only be changed by a Super Admin.";
     rd.appendChild(nm);
   }
 }
