@@ -1620,7 +1620,7 @@
             the five amounts flow 3 + 2 in the same grid.
          2) Assign Roles: the role pills and SAVE ROLES button were oversized (chunky 13px pills,
             big save button, tall cards). They are now compact — smaller pills, tighter cards —
-            so all four roles + save fit in far less space. */
+            so all three roles + save fit in far less space. */
       #tripleChips{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; flex-wrap:wrap}
       #tripleChips .chip{width:100%; min-width:0; padding:0 4px; font-size:15px}
       #tripleChips .chip .bn{overflow:visible}
@@ -1872,9 +1872,6 @@
           <select id="regRole" class="txt-input">
             <option value="user">User (Player)</option>
             <option value="agent">Agent</option>
-            <option value="agent_manager">Agent Manager</option>
-            <option value="draw_controller">Draw Controller</option>
-            <option value="admin">Admin</option>
           </select>
           <button class="btn-green wide-btn" id="registerBtn" type="submit">CREATE ACCOUNT — WAITING FOR APPROVAL</button>
           <p class="empty" style="margin-top:10px">After registering, please wait for approval. You cannot sign in until an admin approves your account.</p>
@@ -2279,7 +2276,7 @@
               <div class="panel" style="margin-top:0">
                 <h3 class="section-head">Transactions</h3>
                 <div class="table-wrap"><table class="admin-table"><thead><tr><th>When</th><th>User</th><th>Type</th><th>Amount</th><th>Note</th></tr></thead><tbody id="txTable"></tbody></table></div>
-                <h4 class="sub-head" style="margin-top:16px">Adjust Balance (Super Admin / Admin only)</h4>
+                <h4 class="sub-head" style="margin-top:16px">Adjust Balance (Super Admin only)</h4>
                 <label class="fld-label" for="txUserId">User ID</label><input id="txUserId" class="txt-input" placeholder="User ID" />
                 <label class="fld-label" for="txAmount">Amount (use negative to deduct)</label><input id="txAmount" class="txt-input" inputmode="numeric" placeholder="e.g. 500" />
                 <label class="fld-label" for="txNote">Note</label><input id="txNote" class="txt-input" placeholder="Reason" />
@@ -2382,7 +2379,7 @@ var API_BASE_URL = "https://lucky-low-api-production.up.railway.app";
    The check NEVER reloads the page by itself; it only shows a small
    floating pill, and only a tap on "Update" reloads (with a cache-buster).
    A failed fetch (offline, or a copy without version.json) stays silent. */
-window.APP_VERSION = "1.3.3";
+window.APP_VERSION = "1.3.4";
 var UPDATE_CHECK_MS = 5*60*1000;
 var _updateLiveVersion = null;
 var _updateDismissedFor = null;
@@ -2536,8 +2533,11 @@ function updateAmountUI(){
   var el=$("singleAmt"); if(el){el.readOnly=!isSA; el.title=isSA?"Type any amount (10–1000)":"Manual amount entry is Super Admin only — use the chips below";}
   var note=$("amtNoteSingle"); if(note)note.hidden=isSA||!currentUser;
 }
-var ROLE_ORDER=["super_admin","admin","draw_controller","agent_manager","agent","user"];
-var ROLE_LABEL={super_admin:"Super Admin",admin:"Admin",draw_controller:"Draw Controller",agent_manager:"Agent Manager",agent:"Agent",user:"User"};
+/* Roles cut to three 2026-11-14: Super Admin > Agent > User only.
+   Creation matrix: Super Admin creates Agent + User; Agent creates User;
+   User creates nothing. */
+var ROLE_ORDER=["super_admin","agent","user"];
+var ROLE_LABEL={super_admin:"Super Admin",agent:"Agent",user:"User"};
 function rolesBelow(role){var i=ROLE_ORDER.indexOf(role);if(i===-1)return ["user"];return ROLE_ORDER.slice(i+1);}
 function unwrapList(d){if(!d)return[];if(Array.isArray(d))return d;return d.items||d.users||d.data||d.results||d.rows||[];}
 function unwrapObj(d){if(!d)return null;return d.user||d.data||d.draw||d.settings||d;}
@@ -2882,6 +2882,9 @@ async function loadRolesAndPerms(){
   if(rolesList.length){ roleNames=rolesList.map(function(r){return typeof r==="string"?r:(r.role||r.name);}).filter(Boolean); }
   else if(rolesData&&typeof rolesData==="object"){ roleNames=Object.keys(rolesData); }
   if(!roleNames.length) roleNames=ROLE_ORDER.slice();
+  // Roles cut to three 2026-11-14: never render a removed role, even if
+  // the server still returns it before the backend role removal is deployed.
+  roleNames=roleNames.filter(function(rn){return ROLE_ORDER.indexOf(rn)!==-1;});
   allRoles=roleNames;
   if($("rolesTable")){
     // For each role, try count via users list
