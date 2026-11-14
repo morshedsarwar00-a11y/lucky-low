@@ -37,11 +37,6 @@
       input{font-family:inherit}
       :focus-visible{outline:2px solid var(--cyan); outline-offset:2px}
 
-      /* floating coins backdrop */
-      .bg-coins{position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden}
-      .bg-coins svg{position:absolute; opacity:.55; filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
-      @keyframes floaty{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-12px) rotate(6deg)}}
-      .bg-coins svg{animation:floaty 7s ease-in-out infinite}
       @media (prefers-reduced-motion: reduce){
         *,*::before,*::after{animation:none !important; transition:none !important}
         html{scroll-behavior:auto}
@@ -466,8 +461,6 @@
           radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, rgba(0,0,10,.55) 100%),
           linear-gradient(180deg,#04061f 0%, #070c38 46%, #04061f 100%);
       }
-      .bg-coins svg{opacity:.95; filter:drop-shadow(0 6px 14px rgba(0,0,0,.6)) drop-shadow(0 0 10px rgba(255,190,40,.35))}
-
       /* header: neon logo, glass balance, rich gold CTA */
       .topbar{background:linear-gradient(180deg, rgba(10,16,64,.97), rgba(5,8,38,.95)); border-bottom:1px solid rgba(255,201,60,.35); box-shadow:0 6px 24px rgba(0,0,0,.55), 0 1px 0 rgba(62,230,255,.18)}
       .logo .l1{color:#aef7ff; text-shadow:0 0 6px rgba(125,243,255,.95), 0 0 16px rgba(62,230,255,.85), 0 0 38px rgba(62,230,255,.45)}
@@ -779,7 +772,6 @@
           radial-gradient(760px 480px at 55% 118%, rgba(255,190,225,.4), transparent 62%),
           linear-gradient(180deg,#cfe2ff 0%, #eed9fb 42%, #f6dcf1 72%, #e4dbff 100%);
       }
-      .bg-coins svg{opacity:.9}
       .sparkles{position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden}
       .sparkles svg{position:absolute; filter:drop-shadow(0 0 6px rgba(255,255,255,.9)); animation:twinkle 3.4s ease-in-out infinite}
       @keyframes twinkle{0%,100%{transform:scale(.7) rotate(0deg); opacity:.45}50%{transform:scale(1.15) rotate(20deg); opacity:1}}
@@ -1000,7 +992,6 @@
       }
       .temple-backdrop{position:fixed; top:0; left:0; right:0; z-index:0; pointer-events:none}
       .temple-backdrop svg{display:block; width:100%; height:190px}
-      .bg-coins svg{opacity:.9}
 
       /* header: dark bronze stone bar, gold logo */
       .topbar{background:linear-gradient(180deg, rgba(74,44,18,.97), rgba(46,26,10,.96)); border-bottom:2px solid #f5b921; box-shadow:0 6px 22px rgba(40,16,0,.45)}
@@ -1738,37 +1729,16 @@
       #updatePill .upd-go{background:linear-gradient(180deg,#ffd94d,#f5a623); color:#3a2408; border:0; border-radius:999px; padding:6px 12px; font-weight:800; font-size:13px}
       #updatePill .upd-x{background:transparent; border:0; color:#ffe9a8; font-size:16px; line-height:1; padding:4px 6px}
 
-      /* ================= WHITE BACKGROUND + FLOATING MONEY (v1.3.0) =================
-         User asked (2026-11-14): page background WHITE, and money (Taka ৳, Dollar $,
-         Qatari Riyal QR) floating slowly around in the background. The dark sunset
-         body gradient and the dark bronze header become plain white; the sunset
-         temple silhouette is hidden (it belongs to the old sunset mood). The old 4
-         bobbing coins become 14 slow-drifting money coins in the app's own 3
-         currencies. Panels, digits, buttons and the logo keep their own
-         backgrounds, so readability and the one-viewport fit are unchanged.
-         The coins live in .bg-coins (position:fixed, z-index:0, pointer-events:none)
-         under all content (.wrap is z-index:1, topbar z-index:60), so they can
-         never cover or intercept a button, digit, chip, countdown or SIGN IN.
-         v1.3.1 (2026-11-14): the user saw NO money in the header — the opaque
-         white topbar (z-60) covered the z-0 coins there. The topbar background is
-         now transparent with backdrop-filter:none (the base blur would have
-         smeared the coins), so the coins show through behind the logo, SIGN IN
-         and menu — those stay on top and fully readable. The menu dropdown keeps
-         its own opaque panel background. White page background unchanged. */
+      /* ================= WHITE BACKGROUND (v1.3.0, coins removed v1.3.2) =================
+         Page background stays WHITE with a transparent topbar (v1.3.0).
+         v1.3.2 (2026-11-14): the floating money coins (Taka ৳, Dollar $, Qatari
+         Riyal QR) were removed at the user's request — the .bg-coins layer and
+         the moneyDrift animation are gone. The coin symbol defs (coinSym etc.)
+         stay: the header balance pill uses #coinSym. */
       body{background:#ffffff}
       .temple-backdrop{display:none}
       .topbar{background:transparent; backdrop-filter:none; -webkit-backdrop-filter:none; border-bottom:1.5px solid #e8d49a; box-shadow:0 4px 16px rgba(90,60,0,.12)}
       .user-chip{color:#6e5426}
-      .bg-coins svg{opacity:.6; filter:drop-shadow(0 3px 8px rgba(90,60,0,.22)); animation:moneyDrift var(--dur,32s) linear infinite; animation-delay:var(--delay,0s)}
-      @keyframes moneyDrift{
-        0%{transform:translate3d(0,108vh,0) rotate(-14deg); opacity:0}
-        8%{opacity:var(--op,.6)}
-        25%{transform:translate3d(var(--sw1,14px),79vh,0) rotate(-5deg)}
-        50%{transform:translate3d(var(--sw2,-12px),52vh,0) rotate(6deg)}
-        75%{transform:translate3d(var(--sw3,10px),25vh,0) rotate(-4deg)}
-        92%{opacity:var(--op,.6)}
-        100%{transform:translate3d(0,-18vh,0) rotate(10deg); opacity:0}
-      }
     </style>
   </head>
   <body>
@@ -1813,23 +1783,6 @@
           <path d="M950 172v-18h56v18z M962 154v-12h32v12z M976 142v-10h6v10z" />
         </g>
       </svg>
-    </div>
-    <div class="bg-coins" aria-hidden="true">
-      <!-- floating money: Taka ৳, Dollar $, Qatari Riyal QR — slow upward drift, each with its own size, speed, delay and sway -->
-      <svg style="left:2%;  top:0; width:64px; --dur:34s; --delay:-6s;  --op:.65; --sw1:18px;  --sw2:-14px; --sw3:10px"><use href="#coinSym" /></svg>
-      <svg style="left:9%;  top:0; width:46px; --dur:28s; --delay:-18s; --op:.55; --sw1:-12px; --sw2:16px;  --sw3:-8px"><use href="#coinDollar" /></svg>
-      <svg style="left:16%; top:0; width:56px; --dur:40s; --delay:-30s; --op:.6;  --sw1:14px;  --sw2:-10px; --sw3:16px"><use href="#coinRiyal" /></svg>
-      <svg style="left:24%; top:0; width:38px; --dur:26s; --delay:-12s; --op:.5;  --sw1:-16px; --sw2:12px;  --sw3:-14px"><use href="#coinSym" /></svg>
-      <svg style="left:31%; top:0; width:62px; --dur:38s; --delay:-24s; --op:.65; --sw1:12px;  --sw2:-18px; --sw3:8px"><use href="#coinDollar" /></svg>
-      <svg style="left:38%; top:0; width:44px; --dur:30s; --delay:-4s;  --op:.55; --sw1:-10px; --sw2:14px;  --sw3:-12px"><use href="#coinRiyal" /></svg>
-      <svg style="left:46%; top:0; width:70px; --dur:42s; --delay:-36s; --op:.7;  --sw1:16px;  --sw2:-12px; --sw3:14px"><use href="#coinSym" /></svg>
-      <svg style="left:54%; top:0; width:40px; --dur:27s; --delay:-14s; --op:.5;  --sw1:-14px; --sw2:10px;  --sw3:-16px"><use href="#coinDollar" /></svg>
-      <svg style="left:61%; top:0; width:58px; --dur:36s; --delay:-28s; --op:.6;  --sw1:10px;  --sw2:-16px; --sw3:12px"><use href="#coinRiyal" /></svg>
-      <svg style="left:68%; top:0; width:48px; --dur:29s; --delay:-8s;  --op:.55; --sw1:-12px; --sw2:18px;  --sw3:-10px"><use href="#coinSym" /></svg>
-      <svg style="left:75%; top:0; width:66px; --dur:41s; --delay:-33s; --op:.65; --sw1:14px;  --sw2:-14px; --sw3:16px"><use href="#coinDollar" /></svg>
-      <svg style="left:82%; top:0; width:42px; --dur:26s; --delay:-20s; --op:.5;  --sw1:-16px; --sw2:12px;  --sw3:-8px"><use href="#coinRiyal" /></svg>
-      <svg style="left:89%; top:0; width:60px; --dur:37s; --delay:-10s; --op:.6;  --sw1:12px;  --sw2:-10px; --sw3:14px"><use href="#coinSym" /></svg>
-      <svg style="left:93%; top:0; width:36px; --dur:25s; --delay:-2s;  --op:.5;  --sw1:-10px; --sw2:14px;  --sw3:-12px"><use href="#coinDollar" /></svg>
     </div>
     <!-- dreamy sparkles -->
     <div class="sparkles" aria-hidden="true">
@@ -2427,7 +2380,7 @@ var API_BASE_URL = "https://lucky-low-api-production.up.railway.app";
    The check NEVER reloads the page by itself; it only shows a small
    floating pill, and only a tap on "Update" reloads (with a cache-buster).
    A failed fetch (offline, or a copy without version.json) stays silent. */
-window.APP_VERSION = "1.3.1";
+window.APP_VERSION = "1.3.2";
 var UPDATE_CHECK_MS = 5*60*1000;
 var _updateLiveVersion = null;
 var _updateDismissedFor = null;
