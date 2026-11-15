@@ -2463,7 +2463,7 @@ var API_BASE_URL = "https://lucky-low-api-production.up.railway.app";
    The check NEVER reloads the page by itself; it only shows a small
    floating pill, and only a tap on "Update" reloads (with a cache-buster).
    A failed fetch (offline, or a copy without version.json) stays silent. */
-window.APP_VERSION = "1.3.9";
+window.APP_VERSION = "1.3.10";
 var UPDATE_CHECK_MS = 5*60*1000;
 var _updateLiveVersion = null;
 var _updateDismissedFor = null;
@@ -2929,6 +2929,17 @@ async function loadShowcase(){
   try{ var d=await api("/api/draws/showcase"); var s=unwrapObj(d)||d||{};
     var ws=pick(s.winning_single,s.winningSingle,s.single,s.todaySingle);
     var wt=pick(s.winning_triple,s.winningTriple,s.triple,s.todayTriple);
+    // Live shape: {recentDraws:[{winning_single,winning_triple,...}],
+    // biggestWins:[...]} — newest settled draw first. There is no
+    // per-number winner name in this response (biggestWins is the
+    // biggest win overall, not the per-number winner), so the "By"
+    // fields stay "—" rather than misattributing a name.
+    var rd=s.recentDraws||s.recent_draws||d.recentDraws||d.recent_draws;
+    if(Array.isArray(rd)&&rd.length){
+      var r0=rd[0];
+      if(ws==null)ws=r0.winning_single!=null?r0.winning_single:r0.winningSingle;
+      if(wt==null)wt=r0.winning_triple||r0.winningTriple;
+    }
     // showcase may be list
     if(Array.isArray(d)&&d.length){ ws=d[0].winning_single; wt=d[0].winning_triple; }
     if(Array.isArray(s)&&s.length){ ws=s[0].winning_single; wt=s[0].winning_triple; }
