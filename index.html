@@ -223,6 +223,24 @@
       .recent{margin:14px 0 2px; color:var(--muted); font-size:14px; background:#0a0f38; border:1px solid var(--line); border-radius:10px; padding:9px}
       .recent span{color:var(--gold); font-weight:700}
 
+      /* ---------- batch system (2026-11-15, v1.3.9) ---------- */
+      .batch-strip{
+        max-width:580px; margin:8px auto 0; padding:3px 10px;
+        text-align:center; font-size:11.5px; font-weight:600; color:var(--muted);
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      }
+      .batch-strip b{color:var(--gold-soft); font-variant-numeric:tabular-nums}
+      .batch-strip .bs-closed{color:#ff8098}
+      .txn{font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; color:var(--cyan-soft); word-break:break-all}
+      .batch-tabs{display:flex; gap:8px; margin:10px 0 4px}
+      .batch-tabs .opt-btn.sel{background:linear-gradient(180deg,#2fb9d8,#0e7fb8); color:#fff; border-color:#2fb9d8}
+      .batch-search{display:flex; gap:8px; align-items:stretch; margin-bottom:8px}
+      .batch-search .txt-input{flex:1; margin:0}
+      .batch-search .btn-green{flex:none; padding:10px 16px}
+      .batch-result{margin:6px 0}
+      .batch-meta{font-size:13px; color:var(--muted); margin:2px 0 8px}
+      .batch-meta b{color:var(--text)}
+
       /* reels */
       .reels{display:flex; justify-content:center; gap:clamp(8px,3vw,16px); margin:14px 0 4px}
       .reel{
@@ -1894,6 +1912,7 @@
           <button class="gtab active" type="button" data-game="single">SINGLE NUMBER</button>
           <button class="gtab" type="button" data-game="triple">TRIPLE NUMBER</button>
         </div>
+        <div class="batch-strip" id="batchStrip" title="Current batch">Batch: <b id="batchName">—</b> <span id="batchStatus"></span></div>
 
         <!-- Single / 10-number game -->
         <div id="game-single" class="panel game-panel">
@@ -1928,6 +1947,7 @@
           </div>
           <button class="btn-place" id="placeSingleBtn" type="button">PLACE BET</button>
           <p class="canplay-note" id="canPlayNoteSingle" hidden>খেলতে Admin-এর অনুমতি লাগবে — Can Play বন্ধ আছে<span class="en">Playing needs Admin approval — Can Play is off</span></p>
+          <p class="canplay-note" id="batchNoteSingle" hidden></p>
           <p class="recent">Recent Winners: <span id="singleRecent">No results yet</span></p>
         </div>
 
@@ -1989,6 +2009,7 @@
           </div>
           <button class="btn-confirm" id="confirmTripleBtn" type="button">CONFIRM BET</button>
           <p class="canplay-note" id="canPlayNoteTriple" hidden>খেলতে Admin-এর অনুমতি লাগবে — Can Play বন্ধ আছে<span class="en">Playing needs Admin approval — Can Play is off</span></p>
+          <p class="canplay-note" id="batchNoteTriple" hidden></p>
           <p class="recent">3D Winning History: <span id="tripleRecent">No results yet</span></p>
         </div>
 
@@ -1998,6 +2019,7 @@
       <section id="view-agent" class="wrap wide" hidden>
         <h2 class="view-title">Agent Betting &amp; Input Panel <span class="bn-sub">(এজেন্ট ইনপুট প্যানেল)</span></h2>
         <p class="canplay-note" id="canPlayNoteAgent" hidden>খেলতে Admin-এর অনুমতি লাগবে — Can Play বন্ধ আছে<span class="en">Playing needs Admin approval — Can Play is off</span></p>
+        <p class="canplay-note" id="batchNoteAgent" hidden></p>
         <div class="panel" style="margin-top:10px">
           <h3 class="section-head">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0" stroke-linecap="round" /></svg>
@@ -2062,6 +2084,7 @@
             <p class="admin-nav-title">MAIN MENU</p>
             <button type="button" class="anav active" data-apage="dashboard">Dashboard</button>
             <button type="button" class="anav" data-apage="draw">Draw Control</button>
+            <button type="button" class="anav" data-apage="batches">Batch Log</button>
             <button type="button" class="anav" data-apage="users">Users</button>
             <button type="button" class="anav" data-apage="create-user">Create User</button>
             <button type="button" class="anav" data-apage="reports">Daily Reports</button>
@@ -2127,6 +2150,56 @@
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z" /><path d="M7 6H4a1 1 0 0 0-1 1c0 2.2 1.8 4 4 4M17 6h3a1 1 0 0 1 1 1c0 2.2-1.8 4-4 4" /></svg>
                     <span id="declareTripleLbl">DECLARE LOWEST 3D NUMBER</span>
                   </button>
+                </div>
+              </div>
+              <div class="panel" style="margin-top:12px">
+                <h3 class="section-head">Draw Time &amp; Ticket Sales <span class="bn-sub">(ড্রয়ের সময় ও টিকিট বিক্রি)</span></h3>
+                <label class="fld-label" for="setDrawTimeInput">Set Draw Time (this game's draw moment — the batch moves with it)</label>
+                <div class="submit-row">
+                  <input id="setDrawTimeInput" class="txt-input" type="datetime-local" />
+                  <button class="btn-green" id="setDrawTimeBtn" type="button">SET DRAW TIME</button>
+                </div>
+                <label class="fld-label" for="batchCutoffInput">Sale cutoff for the current batch (a specific time; blank = no specific time)</label>
+                <div class="submit-row">
+                  <input id="batchCutoffInput" class="txt-input" type="datetime-local" />
+                  <button class="btn-green" id="setBatchCutoffBtn" type="button">SET CUTOFF</button>
+                  <button class="btn-ghost" id="clearBatchCutoffBtn" type="button">CLEAR</button>
+                </div>
+                <p class="muted" id="drawTimeNote" style="font-size:12.5px;margin:8px 0 0"></p>
+              </div>
+            </div>
+
+            <!-- Batch log -->
+            <div class="apage" id="apage-batches" hidden>
+              <div class="panel" style="margin-top:0">
+                <h3 class="section-head">Batch Log <span class="bn-sub">(ব্যাচ লগ — প্রতিটি গেমের হিসাব)</span></h3>
+                <div class="batch-search">
+                  <input id="batchSearchInput" class="txt-input" autocomplete="off" placeholder="Username or Transaction ID (WINI99-TXN-...)" />
+                  <button class="btn-green" id="batchSearchBtn" type="button">SEARCH WIN</button>
+                </div>
+                <div id="batchSearchResults"></div>
+                <div id="batchListWrap">
+                  <div class="table-wrap">
+                    <table class="admin-table">
+                      <thead><tr><th>Batch</th><th>Status</th><th>Tickets</th><th>Stake</th><th>Payout</th><th>Winners</th><th></th></tr></thead>
+                      <tbody id="batchList"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div id="batchDetails" hidden>
+                  <button class="btn-ghost" id="batchBackBtn" type="button" style="margin-bottom:10px">← BACK TO BATCHES</button>
+                  <h4 class="sub-head" id="batchDetailTitle">Batch</h4>
+                  <p class="batch-meta" id="batchDetailMeta"></p>
+                  <div class="batch-tabs" role="tablist" aria-label="WIN or LOST history">
+                    <button type="button" class="opt-btn sel" id="batchTabWon">WIN history</button>
+                    <button type="button" class="opt-btn" id="batchTabLost">LOST history</button>
+                  </div>
+                  <div class="table-wrap">
+                    <table class="admin-table">
+                      <thead><tr><th>User</th><th>Transaction ID</th><th>Created</th><th>Game</th><th>Pick</th><th>Amount</th><th>Payout</th></tr></thead>
+                      <tbody id="batchTickets"></tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2198,6 +2271,11 @@
                 <input id="brandTripleExact" class="txt-input" inputmode="numeric" placeholder="950" />
                 <label class="fld-label" for="brandTripleBox">Triple box multiplier</label>
                 <input id="brandTripleBox" class="txt-input" inputmode="numeric" placeholder="900" />
+                <label class="fld-label" for="brandGapMinutes">Gap between games (minutes)</label>
+                <input id="brandGapMinutes" class="txt-input" inputmode="numeric" placeholder="1" />
+                <label class="fld-label" for="brandCutoffMinutes">Ticket sale cutoff — minutes before the draw (blank = no early cutoff)</label>
+                <input id="brandCutoffMinutes" class="txt-input" inputmode="numeric" placeholder="blank = sales run until the draw" />
+                <label class="perm-row"><input type="checkbox" id="brandSaLateSale" /><span>Super Admin late sale — after the cutoff, only Super Admin can still sell, until the draw</span></label>
                 <label class="fld-label" for="brandAccent">Accent Colour</label>
                 <select id="brandAccent" class="txt-input">
                   <option value="cyan">Neon Cyan</option>
@@ -2385,7 +2463,7 @@ var API_BASE_URL = "https://lucky-low-api-production.up.railway.app";
    The check NEVER reloads the page by itself; it only shows a small
    floating pill, and only a tap on "Update" reloads (with a cache-buster).
    A failed fetch (offline, or a copy without version.json) stays silent. */
-window.APP_VERSION = "1.3.8";
+window.APP_VERSION = "1.3.9";
 var UPDATE_CHECK_MS = 5*60*1000;
 var _updateLiveVersion = null;
 var _updateDismissedFor = null;
@@ -2528,8 +2606,8 @@ function canAccessAgent(){if(!currentUser)return false;return hasPerm("place_age
 /* Admin pages and the permission that unlocks each (2026-11-13, RULE 2:
    a panel is hidden — never just disabled — when the user's role does
    not hold its permission. Super Admin holds all of them.) */
-var ADMIN_PAGE_PERMS={dashboard:"view_dashboard",draw:"declare_winner",users:"create_users","create-user":"create_users",reports:"view_daily_draw_report",branding:"modify_app_settings",staff:"create_users","create-staff":"create_users",audit:"view_dashboard",roles:"manage_roles",transactions:"edit_transactions"};
-function firstAdminPage(){var order=["dashboard","draw","users","create-user","reports","branding","staff","create-staff","audit","roles","transactions"];for(var i=0;i<order.length;i++){if(hasPerm(ADMIN_PAGE_PERMS[order[i]]))return order[i];}return "dashboard";}
+var ADMIN_PAGE_PERMS={dashboard:"view_dashboard",draw:"declare_winner",batches:"view_daily_draw_report",users:"create_users","create-user":"create_users",reports:"view_daily_draw_report",branding:"modify_app_settings",staff:"create_users","create-staff":"create_users",audit:"view_dashboard",roles:"manage_roles",transactions:"edit_transactions"};
+function firstAdminPage(){var order=["dashboard","draw","batches","users","create-user","reports","branding","staff","create-staff","audit","roles","transactions"];for(var i=0;i<order.length;i++){if(hasPerm(ADMIN_PAGE_PERMS[order[i]]))return order[i];}return "dashboard";}
 function applyAdminNavGating(){Array.prototype.forEach.call(document.querySelectorAll(".anav"),function(b){var pg=b.getAttribute("data-apage");b.hidden=!hasPerm(ADMIN_PAGE_PERMS[pg]);});}
 function updateAmountUI(){
   /* Bet amount: typing is Super Admin only (2026-11-13, RULE 3). Users
@@ -2565,10 +2643,11 @@ var ALL_PERMISSIONS=[
    if GET /api/permissions returns nothing usable. Super Admin: all 11. */
 var DEFAULT_ROLE_PERMS={
   super_admin:ALL_PERMISSIONS.map(function(p){return p.key;}),
-  agent:["view_dashboard","view_daily_draw_report","place_agent_bets"],
+  /* 2026-11-15: Agent now holds create_users too (granted live by Super Admin). */
+  agent:["view_dashboard","create_users","view_daily_draw_report","place_agent_bets"],
   user:[]}; 
 function rolesBelow(role){var i=ROLE_ORDER.indexOf(role);if(i===-1)return ["user"];return ROLE_ORDER.slice(i+1);}
-function unwrapList(d){if(!d)return[];if(Array.isArray(d))return d;return d.items||d.users||d.data||d.results||d.rows||[];}
+function unwrapList(d){if(!d)return[];if(Array.isArray(d))return d;return d.items||d.users||d.data||d.results||d.rows||d.bets||d.draws||d.batches||d.tickets||d.transactions||d.entries||[];}
 function unwrapObj(d){if(!d)return null;return d.user||d.data||d.draw||d.settings||d;}
 function normUser(u){ if(u&&u.balance_coins!=null)u.balance=u.balance_coins; return u; }
 
@@ -2583,7 +2662,7 @@ function updateCanPlayUI(){
   var guest=!currentUser;
   var off=currentUser&&currentUser.can_play===false;
   var locked=guest||off;
-  ["placeSingleBtn","confirmTripleBtn","agSingleBtn","agTripleBtn"].forEach(function(id){var b=$(id);if(!b)return;b.classList.toggle("locked",!!locked);b.disabled=!!off;});
+  ["placeSingleBtn","confirmTripleBtn","agSingleBtn","agTripleBtn"].forEach(function(id){var b=$(id);if(!b)return;b.classList.toggle("locked",!!locked);b.disabled=!!off||isBatchLocked();});
   var note=guest?'Sign in to play<span class="en">Please sign in to place a bet</span>':' খেলতে Admin-এর অনুমতি লাগবে — Can Play বন্ধ আছে<span class="en">Playing needs Admin approval — Can Play is off</span>';
   ["canPlayNoteSingle","canPlayNoteTriple","canPlayNoteAgent"].forEach(function(id){var el=$(id);if(!el)return;if(locked){el.innerHTML=note;el.hidden=false;}else{el.hidden=true;}});
   var pill=$("canPlayPill");
@@ -2670,6 +2749,9 @@ function showApp(){
   gateSAOnly($("declareTripleBtn"));
   gateSAOnly($("drawNowBtn"));
   gateSAOnly($("brandSave"));
+  gateSAOnly($("setDrawTimeBtn"));
+  gateSAOnly($("setBatchCutoffBtn"));
+  gateSAOnly($("clearBatchCutoffBtn"));
 }
 function setAuthError(msg){var e=$("authError");if(!e)return;e.textContent=msg||"";e.classList.toggle("show",!!msg);var ok=$("authOk");if(ok&&msg){ok.classList.remove("show");}}
 function setAuthOk(msg){var e=$("authOk");if(!e)return;e.textContent=msg||"";e.classList.toggle("show",!!msg);}
@@ -2728,27 +2810,103 @@ function applySettingsToUI(){
   if($("brandSingleMult"))$("brandSingleMult").value=multSingle();
   if($("brandTripleExact"))$("brandTripleExact").value=multExact();
   if($("brandTripleBox"))$("brandTripleBox").value=multBox();
+  if($("brandGapMinutes"))$("brandGapMinutes").value=pick(appSettings.gap_minutes,appSettings.gapMinutes,"");
+  if($("brandCutoffMinutes")){var sc=pick(appSettings.sale_cutoff_minutes,appSettings.saleCutoffMinutes,null);$("brandCutoffMinutes").value=(sc===null||sc===undefined)?"":sc;}
+  if($("brandSaLateSale"))$("brandSaLateSale").checked=!!pick(appSettings.sa_late_sale,appSettings.saLateSale,false);
   // update multiplier labels in game panels where possible
   var subs=document.querySelectorAll(".game-sub .gold"); // keep server values reflected via potential functions
 }
 
 /* ---------- Draws ---------- */
 function drawEndsAt(){return currentDraw&&(currentDraw.ends_at||currentDraw.endsAt||currentDraw.endTime);}
+/* Batch system (2026-11-15, v1.3.9): one batch = one game window.
+   GET /api/draws/current returns phase 'open' + batch + nextStartsAt null,
+   or phase 'gap' with draw null + the just-closed batch + nextStartsAt.
+   Old cached responses have no phase/batch — treated as open, no batch. */
+function batchOf(){return currentDraw&&(currentDraw.batch||null);}
+function isGapPhase(){return !!(currentDraw&&currentDraw.phase==="gap");}
+function fmtClock(iso){try{return new Date(iso).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});}catch(e){return "";}}
+function fmtDateTime(iso){try{return new Date(iso).toLocaleString("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch(e){return iso||"";}}
+function batchInfo(){
+  var cd=currentDraw||{};
+  var phase=cd.phase||"open";
+  var b=cd.batch||null;
+  var isSA=currentUser&&currentUser.role==="super_admin";
+  var saLate=!!pick(appSettings&&appSettings.sa_late_sale,appSettings&&appSettings.saLateSale,false);
+  var locked=false,reason="",note="";
+  if(phase==="gap"){
+    locked=true;
+    reason="Next game starts soon — bets are locked until then";
+  }else if(b&&b.saleCutoffAt){
+    if(Date.now()>=new Date(b.saleCutoffAt).getTime()){
+      if(isSA&&saLate){ note="Late sale: Super Admin only until the draw"; }
+      else{ locked=true; reason="Ticket sales closed for this batch"; }
+    }
+  }
+  return {phase:phase,batch:b,locked:locked,reason:reason,note:note,saLate:saLate,isSA:isSA};
+}
+function isBatchLocked(){return batchInfo().locked;}
+function batchLockReason(){var i=batchInfo();return i.locked?i.reason:null;}
+function updateBatchUI(){
+  var info=batchInfo();
+  var b=info.batch;
+  if($("batchName"))$("batchName").textContent=b?(b.name||("WINI99-"+(b.serial||""))):"—";
+  if($("batchStatus")){
+    if(!b){$("batchStatus").textContent="";}
+    else{
+      var st=info.phase==="gap"?"Closed":(b.status==="closed"?"Closed":"Open");
+      $("batchStatus").textContent="· "+st+(b.saleCutoffAt?" · Sales close "+fmtClock(b.saleCutoffAt):"");
+      $("batchStatus").className=st==="Closed"?"bs-closed":"";
+    }
+  }
+  var lockNote=info.locked?info.reason:(info.note||"");
+  ["batchNoteSingle","batchNoteTriple","batchNoteAgent"].forEach(function(id){var el=$(id);if(!el)return;if(lockNote){el.textContent=lockNote;el.hidden=false;}else{el.hidden=true;}});
+  // Bet buttons: locked by the batch (gap / cutoff) or by Can Play off.
+  // Guests are NOT disabled here — a tap opens sign-in (see updateCanPlayUI).
+  var off=currentUser&&currentUser.can_play===false;
+  ["placeSingleBtn","confirmTripleBtn","agSingleBtn","agTripleBtn"].forEach(function(id){var btn=$(id);if(btn)btn.disabled=!!off||info.locked;});
+}
 var lastCdRefresh=0;
 function updateCountdowns(){
-  var ends=drawEndsAt(); var elS=$("cdSingle"),elT=$("cdTriple"),elB=$("cdBig");
-  if(!ends){ if(elS)elS.textContent="--:--"; if(elT)elT.textContent="--:--"; if(elB)elB.textContent="--:--:--"; return; }
-  var diff=Math.max(0,Math.floor((new Date(ends).getTime()-Date.now())/1000));
-  /* A draw that just ended used to sit at 00:00 until the next 5s poll
-     (e.g. right after the app came back from the background). Refresh at
-     once when the countdown hits zero, at most once per 2s. */
-  if(diff===0&&Date.now()-lastCdRefresh>2000){lastCdRefresh=Date.now();loadCurrentDraw();}
+  var elS=$("cdSingle"),elT=$("cdTriple"),elB=$("cdBig");
   function mmss(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
   function hhmmss(s){return String(Math.floor(s/3600)).padStart(2,"0")+":"+mmss(s%3600);}
+  var gap=isGapPhase();
+  var target=gap?(currentDraw.nextStartsAt||currentDraw.next_starts_at):drawEndsAt();
+  if(!target){ if(elS)elS.textContent="--:--"; if(elT)elT.textContent="--:--"; if(elB)elB.textContent="--:--:--"; updateBatchUI(); return; }
+  var diff=Math.max(0,Math.floor((new Date(target).getTime()-Date.now())/1000));
+  /* A draw that just ended used to sit at 00:00 until the next 5s poll
+     (e.g. right after the app came back from the background). Refresh at
+     once when the countdown hits zero, at most once per 2s. During a gap
+     the same refresh opens the next game as soon as it starts. */
+  if(diff===0&&Date.now()-lastCdRefresh>2000){lastCdRefresh=Date.now();loadCurrentDraw();}
   if(elS)elS.textContent=mmss(diff); if(elT)elT.textContent=mmss(diff); if(elB)elB.textContent=hhmmss(diff);
+  updateBatchUI();
 }
 async function loadCurrentDraw(){
-  try{ var d=await api("/api/draws/current"); currentDraw=unwrapObj(d)||d; updateCountdowns(); renderDrawDeclared(); }catch(e){ currentDraw=null; updateCountdowns(); }
+  try{ var d=await api("/api/draws/current"); currentDraw=unwrapObj(d)||d; updateCountdowns(); renderDrawDeclared(); renderDrawControls(); }catch(e){ currentDraw=null; updateCountdowns(); }
+}
+/* Prefill the Draw Control time/cutoff inputs from the live draw + batch.
+   Never clobber a field the Super Admin is typing in right now. */
+function toLocalInput(iso){ if(!iso)return ""; var d=new Date(iso); if(isNaN(d.getTime()))return ""; function p(n){return String(n).padStart(2,"0");} return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(d.getHours())+":"+p(d.getMinutes()); }
+function renderDrawControls(){
+  var b=batchOf();
+  var di=$("setDrawTimeInput");
+  if(di&&document.activeElement!==di){var ends=drawEndsAt(); di.value=ends?toLocalInput(ends):"";}
+  var ci=$("batchCutoffInput");
+  if(ci&&document.activeElement!==ci){ci.value=(b&&b.saleCutoffAt)?toLocalInput(b.saleCutoffAt):"";}
+  var note=$("drawTimeNote");
+  if(note){
+    if(!b){note.textContent="";}
+    else{
+      var parts=["Current batch: "+(b.name||"—")+" ("+(b.status||"open")+")."];
+      if(b.saleCutoffAt)parts.push("Sales close at "+fmtClock(b.saleCutoffAt)+".");
+      else{var sc=pick(appSettings&&appSettings.sale_cutoff_minutes,appSettings&&appSettings.saleCutoffMinutes,null);parts.push(sc!=null?("Sales close "+sc+" min before the draw."):"No early sale cutoff — sales run until the draw.");}
+      var sl=!!pick(appSettings&&appSettings.sa_late_sale,appSettings&&appSettings.saLateSale,false);
+      parts.push("Super Admin late sale: "+(sl?"ON":"OFF")+".");
+      note.textContent=parts.join(" ");
+    }
+  }
 }
 function renderDrawDeclared(){
   // If caller has declare_winner, backend may include declared_* — show in SA box
@@ -2793,7 +2951,7 @@ function startPolling(){
 /* ---------- Bets ---------- */
 function betLabel(b){ var mode=b.mode||b.type; var pickVal=b.pick||b.num||b.number||""; return mode==="single"?"Single ["+pickVal+"]":"3D ["+pickVal+"]"; }
 function statusClass(st){ st=String(st||"pending").toLowerCase(); if(st.indexOf("won")===0||st==="won")return "st-won"; if(st.indexOf("box")!==-1)return "st-box"; if(st==="lost")return "st-lost"; return "st-pending"; }
-function betRow(b,extra){ var st=b.status||"pending"; var amt=b.amount!=null?b.amount:b.amt; return '<div class="bet-row"><span class="grow">'+esc(betLabel(b))+(extra||"")+'</span><span class="amt bn">'+tk(amt||0)+'</span><span class="st '+statusClass(st)+'">'+esc(String(st).toUpperCase())+"</span></div>"; }
+function betRow(b,extra){ var st=b.status||"pending"; var amt=b.amount!=null?b.amount:b.amt; var txn=pick(b.transaction_id,b.transactionId); var txnHtml=txn?' <span class="txn">'+esc(txn)+"</span>":""; return '<div class="bet-row"><span class="grow">'+esc(betLabel(b))+txnHtml+(extra||"")+'</span><span class="amt bn">'+tk(amt||0)+'</span><span class="st '+statusClass(st)+'">'+esc(String(st).toUpperCase())+"</span></div>"; }
 async function loadMyBets(){
   try{ var d=await api("/api/bets"); var list=unwrapList(d);
     if($("myBets"))$("myBets").innerHTML=list.length?list.map(function(b){var pay=b.payout||b.payout_amount;return betRow(b,pay?' <span class="muted">· payout <span class="bn">'+tk(pay)+"</span></span>":"");}).join(""):'<p class="empty">No bets yet — pick a number and place your first bet.</p>';
@@ -2802,15 +2960,17 @@ async function loadMyBets(){
 async function placeSingleBet(){
   if(!currentUser){showAuth();return;}
   if(currentUser&&currentUser.can_play===false){toast("খেলতে Admin-এর অনুমতি লাগবে — Can Play বন্ধ আছে");return;}
+  var bl=batchLockReason(); if(bl){toast(bl);return;}
   var amt=parseAmt($("singleAmt").value); if(amt<=0){toast("Enter a bet amount first");return;}
   if(!currentDraw||!currentDraw.id){toast("No open draw right now");await loadCurrentDraw();return;}
-  try{ await api("/api/bets",{method:"POST",body:{drawId:currentDraw.id,mode:"single",pick:String(selDigit),amount:amt}}); toast("Bet placed: Single ["+selDigit+"] — "+tk(amt)); await Promise.allSettled([refreshMe(),loadMyBets(),loadCurrentDraw()]); }catch(e){toast(errMsg(e));}
+  try{ var r=await api("/api/bets",{method:"POST",body:{drawId:currentDraw.id,mode:"single",pick:String(selDigit),amount:amt}}); var txn=r&&(r.transaction_id||r.transactionId||(r.bet&&(r.bet.transaction_id||r.bet.transactionId))); toast("Bet placed: Single ["+selDigit+"] — "+tk(amt)+(txn?" · "+txn:"")); await Promise.allSettled([refreshMe(),loadMyBets(),loadCurrentDraw()]); }catch(e){toast(errMsg(e));}
 }
 async function placeTripleBet(num,amt){
   if(!currentUser){showAuth();return;}
   if(currentUser&&currentUser.can_play===false){toast("খেলতে Admin-এর অনুমতি লাগবে — Can Play বন্ধ আছে");return;}
+  var bl2=batchLockReason(); if(bl2){toast(bl2);return;}
   if(!currentDraw||!currentDraw.id){toast("No open draw right now");await loadCurrentDraw();return;}
-  try{ await api("/api/bets",{method:"POST",body:{drawId:currentDraw.id,mode:"triple",pick:num,amount:amt}}); toast("Bet placed: 3D ["+num+"] — "+tk(amt)); await Promise.allSettled([refreshMe(),loadMyBets(),loadCurrentDraw()]); }catch(e){toast(errMsg(e));}
+  try{ var r2=await api("/api/bets",{method:"POST",body:{drawId:currentDraw.id,mode:"triple",pick:num,amount:amt}}); var txn2=r2&&(r2.transaction_id||r2.transactionId||(r2.bet&&(r2.bet.transaction_id||r2.bet.transactionId))); toast("Bet placed: 3D ["+num+"] — "+tk(amt)+(txn2?" · "+txn2:"")); await Promise.allSettled([refreshMe(),loadMyBets(),loadCurrentDraw()]); }catch(e){toast(errMsg(e));}
 }
 function confirmTripleBet(){
   var raw=toEn($("tripleNum").value).replace(/[^0-9]/g,""); if(raw.length!==3){toast("Type exactly 3 digits (000-999)");return;}
@@ -2829,6 +2989,8 @@ async function loadAgentQueue(){
   renderMoney();
 }
 async function agentAddToQueue(mode,pickVal,amt){
+  var bl=batchLockReason(); if(bl){toast(bl);return;}
+  if(!currentDraw||!currentDraw.id){toast("No open draw right now");return;}
   var playerUser=$("agPlayerUser")?$("agPlayerUser").value.trim():"";
   // Try queue first with player info if supported; also support direct agent bet flow via queue endpoint payload flexibility
   try{
@@ -2839,6 +3001,7 @@ async function agentAddToQueue(mode,pickVal,amt){
 async function agentDirectBet(mode,pickVal,amt){
   var playerUser=$("agPlayerUser")?$("agPlayerUser").value.trim():"";
   if(!playerUser){toast("Enter the player's username or ID first");return;}
+  var bl=batchLockReason(); if(bl){toast(bl);return;}
   if(!currentDraw||!currentDraw.id){toast("No open draw right now");return;}
   var body={drawId:currentDraw.id,mode:mode,pick:pickVal,amount:amt};
   // playerId if looks like uuid, else username
@@ -2855,7 +3018,7 @@ async function loadAgentsList(){
 }
 
 /* ---------- Admin ---------- */
-async function loadAdminAll(){ await Promise.allSettled([loadDashboard(),loadUsers(),loadRolesAndPerms(),loadReports(),loadAudit(),loadTransactions(),loadRisk()]); }
+async function loadAdminAll(){ await Promise.allSettled([loadDashboard(),loadUsers(),loadRolesAndPerms(),loadReports(),loadAudit(),loadTransactions(),loadRisk(),loadBatches()]); }
 async function loadDashboard(){
   try{ var d=await api("/api/reports/dashboard"); var s=unwrapObj(d)||d||{};
     if($("kpiBets"))$("kpiBets").textContent=pick(s.totalBets,s.total_bets,s.bets,s.betsCount,0);
@@ -3027,6 +3190,70 @@ async function loadRisk(){
   }catch(e){ if($("chartSingle"))$("chartSingle").innerHTML='<p class="empty">Risk analysis is available to authorised staff only.</p>'; }
 }
 
+/* ---------- Batch log (2026-11-15, v1.3.9) ---------- */
+/* Server scopes every ticket row: Super Admin sees everything, an Agent
+   only tickets THEY sold, a User only their own — the frontend just calls
+   the endpoints. */
+var currentBatchId=null, batchTabOutcome="won";
+async function loadBatches(){
+  var el=$("batchList"); if(!el)return;
+  try{
+    var d=await api("/api/batches?limit=20&offset=0");
+    var list=(d&&d.batches)||unwrapList(d);
+    el.innerHTML=list.length?list.map(function(bt){
+      var st=String(bt.status||"open");
+      var when=bt.startsAt||bt.starts_at||bt.createdAt||bt.created_at;
+      return "<tr><td><b>"+esc(bt.name||"—")+"</b><br><small class=\"muted\">"+esc(when?fmtDateTime(when):"")+"</small></td><td><span class=\"st "+(st==="closed"?"st-lost":"st-won")+"\">"+esc(st.toUpperCase())+"</span></td><td class=\"bn\">"+(bt.ticketsSold!=null?bt.ticketsSold:(bt.tickets_sold||0))+"</td><td class=\"amt bn\">"+tk(bt.totalBetAmount!=null?bt.totalBetAmount:(bt.total_bet_amount||0))+"</td><td class=\"bn\">"+tk(bt.totalPayoutAmount!=null?bt.totalPayoutAmount:(bt.total_payout_amount||0))+"</td><td class=\"bn\">"+(bt.winnerCount!=null?bt.winnerCount:(bt.winner_count||0))+"</td><td><button type=\"button\" class=\"mini-btn\" data-batchview=\""+esc(bt.id)+"\">VIEW</button></td></tr>";
+    }).join(""):'<tr><td colspan="7" style="text-align:center;color:#8a6d3b">No batches yet.</td></tr>';
+    Array.prototype.forEach.call(el.querySelectorAll("[data-batchview]"),function(b){b.addEventListener("click",function(){openBatch(b.getAttribute("data-batchview"));});});
+  }catch(e){ el.innerHTML='<tr><td colspan="7" style="text-align:center;color:#8a6d3b">Could not load batches.</td></tr>'; }
+}
+async function openBatch(id){
+  currentBatchId=id; batchTabOutcome="won";
+  var d=null;
+  try{ d=await api("/api/batches/"+encodeURIComponent(id)); }catch(e){ toast(errMsg(e)); return; }
+  var bt=(d&&d.batch)||d||{};
+  if($("batchDetailTitle"))$("batchDetailTitle").textContent=bt.name||"Batch";
+  if($("batchDetailMeta"))$("batchDetailMeta").innerHTML="Status: <b>"+esc(String(bt.status||"").toUpperCase())+"</b> · Tickets: <b>"+(bt.ticketsSold!=null?bt.ticketsSold:(bt.tickets_sold||0))+"</b> · Stake: <b>"+tk(bt.totalBetAmount!=null?bt.totalBetAmount:(bt.total_bet_amount||0))+"</b> · Payout: <b>"+tk(bt.totalPayoutAmount!=null?bt.totalPayoutAmount:(bt.total_payout_amount||0))+"</b> · Winners: <b>"+(bt.winnerCount!=null?bt.winnerCount:(bt.winner_count||0))+"</b>";
+  if($("batchListWrap"))$("batchListWrap").hidden=true;
+  if($("batchDetails"))$("batchDetails").hidden=false;
+  setBatchTab("won");
+  loadBatchTickets();
+}
+function setBatchTab(outcome){
+  batchTabOutcome=outcome;
+  if($("batchTabWon"))$("batchTabWon").classList.toggle("sel",outcome==="won");
+  if($("batchTabLost"))$("batchTabLost").classList.toggle("sel",outcome==="lost");
+}
+async function loadBatchTickets(){
+  var el=$("batchTickets"); if(!el||!currentBatchId)return;
+  try{
+    var d=await api("/api/batches/"+encodeURIComponent(currentBatchId)+"/tickets?outcome="+batchTabOutcome+"&limit=50&offset=0");
+    var list=(d&&d.tickets)||unwrapList(d);
+    el.innerHTML=list.length?list.map(function(t){
+      var nm=t.userName||t.username||"—";
+      var when=t.transactionCreatedAt||t.transaction_created_at||t.created_at||t.createdAt;
+      return "<tr><td>"+esc(nm)+"</td><td><span class=\"txn\">"+esc(t.transactionId||t.transaction_id||"—")+"</span></td><td>"+esc(when?fmtDateTime(when):"—")+"</td><td>"+esc(t.mode==="single"?"Single":"3D")+"</td><td class=\"bn\">"+esc(t.pick||"—")+"</td><td class=\"amt bn\">"+tk(t.amount||0)+"</td><td class=\"bn\">"+(t.payout?tk(t.payout):"–")+"</td></tr>";
+    }).join(""):'<tr><td colspan="7" style="text-align:center;color:#8a6d3b">No '+(batchTabOutcome==="won"?"winning":"lost")+' tickets in this batch.</td></tr>';
+  }catch(e){ el.innerHTML='<tr><td colspan="7" style="text-align:center;color:#8a6d3b">Could not load tickets.</td></tr>'; }
+}
+async function searchBatches(){
+  var q=$("batchSearchInput")?$("batchSearchInput").value.trim():"";
+  var box=$("batchSearchResults"); if(!box)return;
+  if(!q){box.innerHTML='<p class="empty">Type a username or Transaction ID to check.</p>';return;}
+  box.innerHTML='<p class="empty">Searching…</p>';
+  try{
+    var d=await api("/api/batches/search?q="+encodeURIComponent(q)+"&limit=20&offset=0");
+    var list=(d&&d.results)||unwrapList(d);
+    if(!list.length){box.innerHTML='<p class="empty">No tickets found for "'+esc(q)+'".</p>';return;}
+    box.innerHTML=list.map(function(r){
+      var won=r.won===true||r.status==="won";
+      var nm=r.userName||r.username||"—";
+      return '<div class="bet-row batch-result"><span class="grow">'+esc(nm)+' · <span class="txn">'+esc(r.transactionId||r.transaction_id||"—")+'</span><br><span class="muted">Batch '+esc(r.batchName||r.batch_name||"")+' · '+esc(r.mode==="single"?"Single":"3D")+' ['+esc(r.pick||"")+'] · '+tk(r.amount||0)+(r.payout?' · payout '+tk(r.payout):"")+'</span></span><span class="st '+(won?"st-won":"st-lost")+'">'+(won?"WON":"LOST")+"</span></div>";
+    }).join("");
+  }catch(e){ box.innerHTML='<p class="empty">'+esc(errMsg(e))+"</p>"; }
+}
+
 /* ---------- Render helpers ---------- */
 function renderMoney(){ var bal=currentUser?((currentUser.balance_coins!=null?currentUser.balance_coins:currentUser.balance)||0):0; if($("balanceVal"))$("balanceVal").textContent=fmt(bal); if($("currSymbol"))$("currSymbol").textContent=cur().symbol; if($("agentCredit"))$("agentCredit").textContent=tk(bal); }
 function renderCurrencyUI(){ var c=cur(); if($("currSymbol"))$("currSymbol").textContent=c.symbol; var coin=$("coinSymText"); if(coin){coin.textContent=c.coin;coin.setAttribute("font-size",c.coin.length>1?"13":"24");coin.setAttribute("y",c.coin.length>1?"37":"40");} Array.prototype.forEach.call(document.querySelectorAll(".js-curr-sym"),function(el){el.textContent=c.symbol;}); Array.prototype.forEach.call(document.querySelectorAll(".js-curr-code"),function(el){el.textContent=c.code;}); Array.prototype.forEach.call(document.querySelectorAll(".chip[data-val]"),function(ch){ch.innerHTML='<span class="bn">'+tk(+ch.getAttribute("data-val"))+"</span>";}); Array.prototype.forEach.call(document.querySelectorAll("[data-curr]"),function(b){b.classList.toggle("sel",b.getAttribute("data-curr")===currency);}); var note=$("currNote"); if(note)note.textContent="Now playing in: "+c.name+" ("+c.code+"). Display only — amounts are unchanged."; }
@@ -3056,12 +3283,13 @@ function showAdminPage(name){
   // a page the user has no permission for is hidden — fall back to the
   // first permitted page, or the player view if there is none.
   if(!hasPerm(ADMIN_PAGE_PERMS[name])){var fb=firstAdminPage();if(!hasPerm(ADMIN_PAGE_PERMS[fb])){showView("player");return;}name=fb;}
-  ["dashboard","draw","users","create-user","reports","branding","staff","create-staff","audit","roles","transactions"].forEach(function(pg){var el=$("apage-"+pg);if(el)el.hidden=pg!==name;});
+  ["dashboard","draw","batches","users","create-user","reports","branding","staff","create-staff","audit","roles","transactions"].forEach(function(pg){var el=$("apage-"+pg);if(el)el.hidden=pg!==name;});
   Array.prototype.forEach.call(document.querySelectorAll(".anav"),function(b){b.classList.toggle("active",b.getAttribute("data-apage")===name);});
   if(name==="roles"){if($("rolesMain"))$("rolesMain").hidden=false;if($("roleDetails"))$("roleDetails").hidden=true; loadRolesAndPerms();}
   if(name==="users"||name==="staff")loadUsers();
   if(name==="dashboard")loadDashboard();
-  if(name==="draw")loadRisk();
+  if(name==="draw"){loadRisk();renderDrawControls();}
+  if(name==="batches"){if($("batchDetails"))$("batchDetails").hidden=true;if($("batchListWrap"))$("batchListWrap").hidden=false;loadBatches();}
   if(name==="reports")loadReports();
   if(name==="audit")loadAudit();
   if(name==="transactions")loadTransactions();
@@ -3134,6 +3362,32 @@ function wire(){
   Array.prototype.forEach.call(document.querySelectorAll("#reels .reel"),function(reel,idx){var startY=null,startD=0,lastSteps=0;reel.addEventListener("pointerdown",function(e){startY=e.clientY;lastSteps=0;startD=+reel.querySelector(".r-cur").textContent||0;if(reel.setPointerCapture){try{reel.setPointerCapture(e.pointerId);}catch(err){}}});reel.addEventListener("pointermove",function(e){if(startY===null)return;var steps=Math.round((startY-e.clientY)/24);if(steps!==lastSteps){lastSteps=steps;setReelDigit(idx,startD+steps);}});function end(){startY=null;}reel.addEventListener("pointerup",end);reel.addEventListener("pointercancel",end);reel.addEventListener("wheel",function(e){e.preventDefault();var curD=+reel.querySelector(".r-cur").textContent||0;setReelDigit(idx,curD+(e.deltaY<0?1:-1));},{passive:false});});
   // admin nav
   Array.prototype.forEach.call(document.querySelectorAll(".anav"),function(b){b.addEventListener("click",function(){showAdminPage(b.getAttribute("data-apage"));});});
+  // batch log (2026-11-15, v1.3.9)
+  if($("batchBackBtn"))$("batchBackBtn").addEventListener("click",function(){if($("batchDetails"))$("batchDetails").hidden=true;if($("batchListWrap"))$("batchListWrap").hidden=false;loadBatches();});
+  if($("batchTabWon"))$("batchTabWon").addEventListener("click",function(){setBatchTab("won");loadBatchTickets();});
+  if($("batchTabLost"))$("batchTabLost").addEventListener("click",function(){setBatchTab("lost");loadBatchTickets();});
+  if($("batchSearchBtn"))$("batchSearchBtn").addEventListener("click",searchBatches);
+  if($("batchSearchInput"))$("batchSearchInput").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();searchBatches();}});
+  if($("setDrawTimeBtn"))$("setDrawTimeBtn").addEventListener("click",async function(){
+    if(!(currentUser&&currentUser.role==="super_admin")){toast("Super Admin only");return;}
+    var v=$("setDrawTimeInput")?$("setDrawTimeInput").value:"";
+    if(!v){toast("Pick a draw date and time first");return;}
+    var iso=new Date(v).toISOString();
+    if(new Date(iso).getTime()<=Date.now()){toast("Draw time must be in the future");return;}
+    try{await api("/api/draws/set-time",{method:"POST",body:{endsAt:iso}});toast("Draw time set — the batch moved with it");await loadCurrentDraw();renderDrawControls();}catch(e){toast(errMsg(e));}
+  });
+  if($("setBatchCutoffBtn"))$("setBatchCutoffBtn").addEventListener("click",async function(){
+    if(!(currentUser&&currentUser.role==="super_admin")){toast("Super Admin only");return;}
+    var b=batchOf(); if(!b||!b.id){toast("No current batch");return;}
+    var v=$("batchCutoffInput")?$("batchCutoffInput").value:"";
+    if(!v){toast("Pick a cutoff date and time first");return;}
+    try{await api("/api/batches/"+encodeURIComponent(b.id)+"/sale-cutoff",{method:"POST",body:{saleCutoffAt:new Date(v).toISOString()}});toast("Sale cutoff set for this batch");await loadCurrentDraw();renderDrawControls();}catch(e){toast(errMsg(e));}
+  });
+  if($("clearBatchCutoffBtn"))$("clearBatchCutoffBtn").addEventListener("click",async function(){
+    if(!(currentUser&&currentUser.role==="super_admin")){toast("Super Admin only");return;}
+    var b=batchOf(); if(!b||!b.id){toast("No current batch");return;}
+    try{await api("/api/batches/"+encodeURIComponent(b.id)+"/sale-cutoff",{method:"POST",body:{saleCutoffAt:null}});toast("Batch cutoff cleared — the minutes rule applies again");await loadCurrentDraw();renderDrawControls();}catch(e){toast(errMsg(e));}
+  });
   if($("addUserBtn"))$("addUserBtn").addEventListener("click",function(){showAdminPage("create-user");});
   if($("addStaffBtn"))$("addStaffBtn").addEventListener("click",function(){showAdminPage("create-staff");});
   if($("roleBack"))$("roleBack").addEventListener("click",function(){$("roleDetails").hidden=true;$("rolesMain").hidden=false;});
@@ -3155,13 +3409,22 @@ function wire(){
   });
   if($("brandSave"))$("brandSave").addEventListener("click",async function(){
     if(!(currentUser&&currentUser.role==="super_admin")){toast("Super Admin only");return;}
+    /* Settings DTO is camelCase — the server rejects unknown snake_case
+       keys with 400 (whitelist + forbidNonWhitelisted), so every field
+       here must be camelCase. Batch fields (2026-11-15, v1.3.9):
+
+       gapMinutes (0-1440), saleCutoffMinutes (null = clear / no early
+       cutoff), saLateSale (boolean). */
     var body={};
-    var nm=$("brandName").value.trim(); if(nm)body.app_name=nm;
-    var di=parseInt($("brandDrawInterval").value,10); if(!isNaN(di))body.draw_interval_minutes=di;
-    var sm=parseFloat($("brandSingleMult").value); if(!isNaN(sm))body.single_multiplier=sm;
-    var te=parseFloat($("brandTripleExact").value); if(!isNaN(te))body.triple_exact_multiplier=te;
-    var tb=parseFloat($("brandTripleBox").value); if(!isNaN(tb))body.triple_box_multiplier=tb;
-    var acc=$("brandAccent")?$("brandAccent").value:""; if(acc)body.theme_color=acc;
+    var nm=$("brandName").value.trim(); if(nm)body.appName=nm;
+    var di=parseInt($("brandDrawInterval").value,10); if(!isNaN(di))body.drawIntervalMinutes=di;
+    var sm=parseFloat($("brandSingleMult").value); if(!isNaN(sm))body.singleMultiplier=sm;
+    var te=parseFloat($("brandTripleExact").value); if(!isNaN(te))body.tripleExactMultiplier=te;
+    var tb=parseFloat($("brandTripleBox").value); if(!isNaN(tb))body.tripleBoxMultiplier=tb;
+    var acc=$("brandAccent")?$("brandAccent").value:""; if(acc)body.themeColor=acc;
+    var gm=parseInt($("brandGapMinutes")?$("brandGapMinutes").value:"",10); if(!isNaN(gm))body.gapMinutes=gm;
+    if($("brandCutoffMinutes")){var cv=$("brandCutoffMinutes").value.trim(); if(cv===""){body.saleCutoffMinutes=null;}else{var ci=parseInt(cv,10); if(!isNaN(ci))body.saleCutoffMinutes=ci;}}
+    if($("brandSaLateSale"))body.saLateSale=$("brandSaLateSale").checked;
     try{await api("/api/settings",{method:"PUT",body:body});toast("Settings saved");await loadSettings();renderAll();}catch(e){toast(errMsg(e));}
   });
   if($("drawNowBtn"))$("drawNowBtn").addEventListener("click",async function(){if(!(currentUser&&currentUser.role==="super_admin")){toast("Super Admin only");return;}try{await api("/api/draws/draw-now",{method:"POST",body:{}});toast("Draw triggered");await loadCurrentDraw();loadShowcase();loadHistory();}catch(e){toast(errMsg(e));}});
