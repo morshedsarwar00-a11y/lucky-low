@@ -59,6 +59,8 @@
       }
       .logo{font-family:"Baloo 2",sans-serif; font-weight:900; line-height:1; letter-spacing:1px; user-select:none; white-space:nowrap; -webkit-box-reflect:below 0 linear-gradient(rgba(255,255,255,.22), transparent 30%); animation:logoSway 3.2s ease-in-out infinite}
       .logo span{display:inline-block; font-size:clamp(54px,15vw,72px); background-size:250% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:none; animation:logoShine 4.5s linear infinite}
+      /* 2026-11-18: new client logo — red W mark image (was gradient WINI99 text) */
+      .logo img{height:clamp(54px,15vw,72px);width:auto;display:block;margin-inline:auto}
       .logo .l1{background-image:linear-gradient(110deg,#35056a 0%,#5f13ab 16%,#9620c8 30%,#ff5da6 42%,#ffd6f2 50%,#ff40af 58%,#c92bb2 72%,#7a2bd0 88%,#3a2fd0 100%); filter:drop-shadow(1px 0 0 rgba(255,240,250,.85)) drop-shadow(-1px 0 0 rgba(255,240,250,.85)) drop-shadow(0 1px 0 rgba(255,240,250,.85)) drop-shadow(0 -1px 0 rgba(255,240,250,.85)) drop-shadow(0 3px 5px rgba(20,10,0,.7)) drop-shadow(0 0 16px rgba(255,93,166,.55))}
       .logo .l2{margin-left:3px; background-image:linear-gradient(110deg,#5f13ab 0%,#9620c8 20%,#c92bb2 34%,#ff40af 46%,#ffd6f2 52%,#ff5da6 62%,#7a2bd0 82%,#3a2fd0 100%); filter:drop-shadow(1px 0 0 rgba(255,240,250,.85)) drop-shadow(-1px 0 0 rgba(255,240,250,.85)) drop-shadow(0 1px 0 rgba(255,240,250,.85)) drop-shadow(0 -1px 0 rgba(255,240,250,.85)) drop-shadow(0 3px 5px rgba(20,10,0,.7)) drop-shadow(0 0 16px rgba(255,64,175,.6))}
       @keyframes logoShine{from{background-position:200% 0}to{background-position:-200% 0}}
@@ -1840,7 +1842,7 @@
     </div>
 
     <header class="topbar">
-      <div class="logo" aria-label="wini99"><span class="l1" id="brandL1">WINI</span><span class="l2" id="brandL2">99</span></div>
+      <div class="logo" aria-label="wini99"><img src="logo-mark.png" alt="wini99"></div>
       <div class="top-actions">
         <div class="balance-pill" id="balancePill" title="Your balance">
           <svg width="22" height="22" aria-hidden="true"><use href="#coinSym" /></svg>
